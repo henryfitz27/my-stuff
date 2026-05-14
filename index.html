@@ -1,0 +1,3161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema de Gestión de Procesamiento de Café · WOMG SAC</title>
+<meta name="description" content="Propuesta de alcance, flujos y casos de uso para el Sistema de Gestión de Servicio de Procesamiento de Café. WOMG SAC, Versión 1.0." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Sistema WOMG SAC — Procesamiento de Café
+   Single-file editorial HTML. Editorial / specialty-coffee theme.
+   ============================================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  /* Paper & ink */
+  --paper:      #f4ecdd;
+  --paper-2:    #ece1c9;
+  --paper-3:    #e3d5b8;
+  --cream:      #faf6ec;
+  --ink:        #1a110a;
+  --ink-2:      #2e1e12;
+  --ink-3:      #4d3520;
+  --muted:      #7a6043;
+  --muted-2:    #9a8163;
+  --line:       #c9b696;
+  --line-soft:  #d9c8aa;
+
+  /* Accents */
+  --terra:      #b53d1a;   /* primary — flows, actions */
+  --terra-2:    #8d2e13;
+  --terra-3:    #e2693e;
+  --olive:      #5d6b3f;   /* secondary — quality/success */
+  --olive-2:    #3f4a26;
+  --olive-3:    #8a9963;
+  --gold:       #a07a3e;
+  --gold-2:     #c79a4d;
+  --plum:       #5a3a4a;   /* used sparingly */
+
+  /* Type */
+  --display: 'Fraunces', 'IBM Plex Serif', Georgia, serif;
+  --body:    'IBM Plex Sans', system-ui, sans-serif;
+  --mono:    'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Geometry */
+  --rad:    14px;
+  --rad-s:  8px;
+  --rad-l:  22px;
+  --shadow:    0 1px 0 rgba(28,17,10,.04), 0 12px 30px -22px rgba(28,17,10,.55);
+  --shadow-2:  0 1px 0 rgba(28,17,10,.06), 0 30px 60px -40px rgba(28,17,10,.55);
+}
+
+html, body { background: var(--paper); color: var(--ink); }
+body {
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  font-feature-settings: "ss01","cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Paper grain overlay */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .22;
+  mix-blend-mode: multiply;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.07  0 0 0 0 0.04  0 0 0 0.45 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+::selection { background: var(--terra); color: var(--cream); }
+
+/* Typography */
+h1,h2,h3,h4 { font-family: var(--display); font-weight: 500; color: var(--ink); letter-spacing: -.01em; }
+h1 { font-size: clamp(2.4rem, 5vw, 4.4rem); line-height: 1; font-variation-settings: "SOFT" 30, "opsz" 144; }
+h2 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); line-height: 1.08; font-variation-settings: "SOFT" 30, "opsz" 96; }
+h3 { font-size: 1.35rem; line-height: 1.2; font-variation-settings: "SOFT" 40, "opsz" 36; }
+h4 { font-size: 1.05rem; line-height: 1.25; font-weight: 600; }
+em { font-style: italic; }
+strong { font-weight: 600; color: var(--ink); }
+p { margin: 0 0 1rem; max-width: 72ch; }
+a { color: var(--terra-2); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--terra-2) 40%, transparent); transition: color .2s, border-color .2s; }
+a:hover { color: var(--terra); border-color: var(--terra); }
+hr { border: 0; border-top: 1px solid var(--line-soft); margin: 3rem 0; }
+code, pre, .mono { font-family: var(--mono); }
+code { background: var(--paper-2); padding: .08em .35em; border-radius: 4px; font-size: .92em; color: var(--ink-2); }
+blockquote {
+  border-left: 3px solid var(--gold);
+  padding: .35rem 1rem;
+  margin: 1.2rem 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 8%, transparent), transparent);
+  color: var(--ink-2);
+  font-style: italic;
+}
+blockquote p:last-child { margin-bottom: 0; }
+
+ul, ol { margin: 0 0 1rem 1.2rem; }
+li { margin-bottom: .35rem; }
+li::marker { color: var(--terra); }
+
+/* ============================================================
+   COVER / HERO
+   ============================================================ */
+
+.cover {
+  position: relative;
+  min-height: 100vh;
+  padding: 4rem 6vw 6rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 2rem;
+  background:
+    radial-gradient(900px 600px at 90% 10%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 60%),
+    radial-gradient(700px 500px at 5% 90%, color-mix(in srgb, var(--terra) 12%, transparent), transparent 60%),
+    var(--paper);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.cover::after {
+  /* Coffee bean decorative cluster */
+  content: "";
+  position: absolute;
+  right: -80px; bottom: -80px;
+  width: 460px; height: 460px;
+  background-image:
+    radial-gradient(ellipse 50px 80px at 50% 50%, var(--ink-3) 30%, transparent 32%),
+    radial-gradient(ellipse 36px 58px at 22% 70%, var(--terra-2) 30%, transparent 32%),
+    radial-gradient(ellipse 40px 64px at 78% 30%, var(--olive-2) 30%, transparent 32%),
+    radial-gradient(ellipse 30px 48px at 70% 78%, var(--gold) 30%, transparent 32%);
+  opacity: .12;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.cover-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-family: var(--mono);
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cover-top .brand {
+  display: flex; align-items: center; gap: .7rem; color: var(--ink);
+}
+.cover-top .brand .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--terra);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--terra) 18%, transparent);
+}
+
+.cover-main {
+  align-self: center;
+  max-width: 1100px;
+}
+.cover-overline {
+  font-family: var(--mono);
+  font-size: .82rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--terra-2);
+  margin-bottom: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+}
+.cover-overline::before {
+  content: "";
+  display: inline-block; width: 40px; height: 1px;
+  background: var(--terra-2);
+}
+.cover h1 {
+  font-size: clamp(2.8rem, 7.5vw, 7rem);
+  line-height: .95;
+  font-weight: 400;
+  font-variation-settings: "SOFT" 50, "opsz" 144, "wght" 400;
+  letter-spacing: -.025em;
+  color: var(--ink);
+}
+.cover h1 em {
+  font-style: italic;
+  color: var(--terra-2);
+  font-variation-settings: "SOFT" 80, "opsz" 144, "wght" 400;
+}
+.cover-tagline {
+  margin-top: 1.6rem;
+  max-width: 38em;
+  font-size: 1.1rem;
+  color: var(--ink-3);
+}
+
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin-top: 3rem;
+  max-width: 900px;
+}
+.cover-meta .cell {
+  background: var(--paper);
+  padding: 1.1rem 1.2rem;
+}
+.cover-meta .label {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .4rem;
+}
+.cover-meta .value {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.cover-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.scroll-cue {
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.scroll-cue .arrow {
+  width: 18px; height: 1px; background: var(--ink-3); position: relative;
+  animation: cue 2.4s ease-in-out infinite;
+}
+.scroll-cue .arrow::after {
+  content: ""; position: absolute; right: 0; top: -3px;
+  width: 7px; height: 7px;
+  border-right: 1px solid var(--ink-3);
+  border-bottom: 1px solid var(--ink-3);
+  transform: rotate(-45deg);
+}
+@keyframes cue { 0%,100% { transform: translateX(0); opacity: .5; } 50% { transform: translateX(6px); opacity: 1; } }
+
+/* ============================================================
+   LAYOUT — sidebar TOC + main content
+   ============================================================ */
+
+.shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 4vw 6rem;
+}
+
+.toc {
+  position: sticky;
+  top: 2rem;
+  align-self: start;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  padding-right: .5rem;
+  font-size: .88rem;
+}
+.toc::-webkit-scrollbar { width: 5px; }
+.toc::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+.toc-title {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+.toc li { margin: 0; counter-increment: toc; }
+.toc a {
+  display: flex;
+  align-items: baseline;
+  gap: .7rem;
+  padding: .45rem 0;
+  color: var(--ink-3);
+  border: 0;
+  font-family: var(--body);
+  font-size: .88rem;
+  line-height: 1.3;
+  border-bottom: 1px dotted transparent;
+  transition: color .15s;
+}
+.toc a:hover { color: var(--terra); }
+.toc a::before {
+  content: counter(toc, decimal-leading-zero);
+  font-family: var(--mono);
+  font-size: .68rem;
+  color: var(--muted-2);
+  letter-spacing: .08em;
+  min-width: 2.2em;
+  flex-shrink: 0;
+}
+.toc a.active {
+  color: var(--terra-2);
+  font-weight: 500;
+}
+.toc a.active::before { color: var(--terra); }
+
+.toc-toggle {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem; right: 1.5rem;
+  z-index: 100;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-2);
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+
+main { min-width: 0; }
+section { margin-bottom: 6rem; scroll-margin-top: 2rem; }
+section:last-child { margin-bottom: 0; }
+
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+}
+.sec-num {
+  font-family: var(--display);
+  font-size: 3.6rem;
+  line-height: 1;
+  color: var(--terra-2);
+  font-variation-settings: "SOFT" 100, "opsz" 96, "wght" 300;
+  font-style: italic;
+  flex-shrink: 0;
+}
+.sec-head h2 { margin: 0; }
+.sec-head .kicker {
+  display: block;
+  font-family: var(--mono);
+  font-size: .7rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+h3 { margin: 2.4rem 0 1rem; }
+h3.sub {
+  display: flex; align-items: baseline; gap: .8rem;
+}
+h3.sub .ix {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--terra-2);
+  letter-spacing: .08em;
+}
+
+h4 { margin: 1.5rem 0 .7rem; color: var(--ink-2); }
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  background: var(--cream);
+  margin: 1.4rem 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .92rem;
+  min-width: 480px;
+}
+th, td {
+  padding: .85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+th {
+  font-family: var(--mono);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper-2);
+  font-weight: 500;
+  border-bottom: 1px solid var(--line);
+}
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: color-mix(in srgb, var(--gold) 6%, transparent); }
+td.num, th.num { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+td strong { color: var(--ink); }
+
+/* Comparison table (Section 2.2) */
+.compare th:first-child { width: 22%; color: var(--ink-2); background: var(--paper-3); }
+.compare td:first-child { font-weight: 500; background: var(--paper-2); color: var(--ink-2); }
+
+/* ============================================================
+   CALLOUTS
+   ============================================================ */
+
+.callout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem 1.2rem;
+  background: var(--cream);
+  border-left: 3px solid var(--terra);
+  padding: 1.1rem 1.4rem;
+  border-radius: 0 var(--rad-s) var(--rad-s) 0;
+  margin: 1.4rem 0;
+}
+.callout .tag {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  white-space: nowrap;
+  padding-top: .15rem;
+}
+.callout.olive { border-color: var(--olive); }
+.callout.olive .tag { color: var(--olive-2); }
+.callout.gold { border-color: var(--gold); }
+.callout.gold .tag { color: var(--gold); }
+
+/* ============================================================
+   SCOPE PANELS (Section 3)
+   ============================================================ */
+
+.scope-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  overflow: hidden;
+  margin: 1.4rem 0;
+}
+.scope-panel {
+  background: var(--cream);
+  padding: 1.4rem 1.4rem 1.6rem;
+}
+.scope-panel.in   { background: linear-gradient(180deg, color-mix(in srgb, var(--olive) 9%, var(--cream)), var(--cream) 30%); }
+.scope-panel.out  { background: linear-gradient(180deg, color-mix(in srgb, var(--terra) 9%, var(--cream)), var(--cream) 30%); }
+.scope-panel.assume { background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 9%, var(--cream)), var(--cream) 30%); }
+.scope-panel h4 {
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin: 0 0 1rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.scope-panel.in   h4 { color: var(--olive-2); }
+.scope-panel.out  h4 { color: var(--terra-2); }
+.scope-panel.assume h4 { color: var(--gold); }
+.scope-panel ul { margin: 0; padding-left: 1.1rem; }
+.scope-panel li { font-size: .92rem; line-height: 1.5; }
+
+/* ============================================================
+   KEY CONCEPTS (Section 4)
+   ============================================================ */
+
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.4rem 0;
+}
+.concept {
+  position: relative;
+  background: var(--cream);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--rad);
+  padding: 1.4rem 1.4rem 1.5rem;
+  transition: transform .25s ease, box-shadow .25s;
+}
+.concept:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.concept .num {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--terra-2);
+  font-variation-settings: "SOFT" 100, "opsz" 60, "wght" 300;
+  margin-bottom: .4rem;
+}
+.concept h4 {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 36;
+  color: var(--ink);
+  margin: 0 0 .6rem;
+}
+.concept p { font-size: .92rem; color: var(--ink-3); margin: 0; }
+
+/* Analysis pills (AFE/AFP/ASE) */
+.analyses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.6rem 0;
+}
+.analysis {
+  background: var(--cream);
+  border: 1px solid var(--line-soft);
+  border-top: 4px solid var(--terra);
+  border-radius: var(--rad-s);
+  padding: 1.2rem 1.3rem 1.3rem;
+}
+.analysis.afp { border-top-color: var(--gold); }
+.analysis.ase { border-top-color: var(--olive); }
+.analysis .ana-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  background: var(--terra);
+  color: var(--cream);
+  padding: .25rem .55rem;
+  border-radius: 3px;
+  margin-bottom: .8rem;
+}
+.analysis.afp .ana-tag { background: var(--gold); }
+.analysis.ase .ana-tag { background: var(--olive); }
+.analysis h4 { font-family: var(--display); font-size: 1.1rem; font-weight: 500; margin: 0 0 .5rem; }
+.analysis p { font-size: .9rem; margin: 0; color: var(--ink-3); }
+
+/* ============================================================
+   MODULES TABLE (Section 5)
+   ============================================================ */
+
+.modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  overflow: hidden;
+  margin: 1.4rem 0;
+}
+.module {
+  background: var(--cream);
+  padding: 1.1rem 1.2rem 1.2rem;
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: .8rem;
+  transition: background .2s;
+}
+.module:hover { background: color-mix(in srgb, var(--gold) 8%, var(--cream)); }
+.module .mid {
+  font-family: var(--mono);
+  font-size: .85rem;
+  color: var(--terra);
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+.module h4 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0 0 .3rem;
+  color: var(--ink);
+  font-variation-settings: "SOFT" 30, "opsz" 28;
+}
+.module p { font-size: .86rem; color: var(--ink-3); margin: 0; max-width: none; }
+
+/* ============================================================
+   FLOW DIAGRAM 6.1 — Linear vertical stages
+   ============================================================ */
+
+.flow-linear {
+  position: relative;
+  margin: 2rem 0 1rem;
+  padding-left: 1.5rem;
+}
+.flow-linear::before {
+  content: "";
+  position: absolute;
+  left: 28px; top: 24px; bottom: 24px;
+  width: 1px;
+  background: repeating-linear-gradient(180deg, var(--line) 0 6px, transparent 6px 12px);
+}
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 1.4rem;
+  margin-bottom: 1.4rem;
+}
+.stage .step {
+  position: relative;
+  z-index: 2;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 1px solid var(--ink);
+  display: grid; place-items: center;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-style: italic;
+  color: var(--ink);
+  font-variation-settings: "SOFT" 100, "opsz" 36, "wght" 400;
+  box-shadow: 0 0 0 6px var(--paper);
+}
+.stage .body {
+  background: var(--cream);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--rad);
+  padding: 1.1rem 1.3rem 1.2rem;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+.stage .body::before {
+  /* arrow notch pointing back to step */
+  content: "";
+  position: absolute;
+  left: -8px; top: 22px;
+  width: 14px; height: 14px;
+  background: var(--cream);
+  border-left: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  transform: rotate(45deg);
+}
+.stage .actor {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .35rem;
+}
+.stage h4 {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 36;
+  color: var(--ink);
+  margin: 0 0 .7rem;
+}
+.stage ul { margin: 0; padding-left: 1.1rem; }
+.stage li { font-size: .92rem; color: var(--ink-3); }
+.stage.afe .step { background: var(--terra); color: var(--cream); border-color: var(--terra-2); }
+.stage.afp .step { background: var(--gold); color: var(--cream); border-color: var(--gold); }
+.stage.ase .step { background: var(--olive); color: var(--cream); border-color: var(--olive-2); }
+.stage.liq .step { background: var(--ink); color: var(--cream); }
+
+/* ============================================================
+   FLOW DIAGRAM 6.2 — API swim-lane (two columns)
+   ============================================================ */
+
+.swimlane {
+  border: 1px solid var(--line);
+  border-radius: var(--rad);
+  background: var(--cream);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+.lane-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--ink);
+  color: var(--cream);
+}
+.lane-head > div {
+  padding: 1rem 1.4rem;
+  font-family: var(--mono);
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: .7rem;
+}
+.lane-head > div + div { border-left: 1px solid color-mix(in srgb, var(--cream) 18%, transparent); }
+.lane-head .badge {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--terra-3);
+}
+.lane-head .badge.olive { background: var(--olive-3); }
+
+.lanes {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.lanes::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 1px;
+  background: repeating-linear-gradient(180deg, var(--line) 0 5px, transparent 5px 10px);
+}
+
+.lane-row {
+  display: contents;
+}
+.lane-step {
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: .9rem;
+  min-height: 90px;
+}
+.lane-step.empty { background: var(--paper); }
+.lane-step .actor-step {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .4rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.lane-step .actor-step .nb {
+  display: inline-block;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--cream);
+  display: inline-grid; place-items: center;
+  font-size: .68rem;
+  font-family: var(--mono);
+}
+.lane-step .title {
+  font-family: var(--display);
+  font-size: 1.02rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 24;
+  color: var(--ink-2);
+  margin-bottom: .35rem;
+}
+.lane-step .detail {
+  font-size: .86rem;
+  color: var(--ink-3);
+}
+.lane-step .api {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .82rem;
+  background: var(--paper-2);
+  color: var(--terra-2);
+  padding: .2rem .55rem;
+  border-radius: 4px;
+  margin-top: .3rem;
+}
+
+.lane-arrow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: .65rem 1.4rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--terra) 7%, var(--cream)), color-mix(in srgb, var(--terra) 10%, var(--cream)));
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: .82rem;
+  color: var(--ink-2);
+}
+.lane-arrow.webhook {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--olive) 10%, var(--cream)), color-mix(in srgb, var(--olive) 7%, var(--cream)));
+}
+.lane-arrow .line {
+  height: 1px;
+  background: var(--terra-2);
+  position: relative;
+}
+.lane-arrow.webhook .line { background: var(--olive-2); }
+.lane-arrow .line::before, .lane-arrow .line::after {
+  content: ""; position: absolute; top: -3px;
+  width: 8px; height: 8px;
+  border-right: 1px solid currentColor;
+  border-top: 1px solid currentColor;
+  color: var(--terra-2);
+}
+.lane-arrow.webhook .line::before, .lane-arrow.webhook .line::after { color: var(--olive-2); }
+.lane-arrow .line::after { right: 0; transform: rotate(45deg); }
+.lane-arrow .line::before { left: 0; transform: rotate(-135deg); display: none; }
+.lane-arrow.right .line::after { right: 0; left: auto; transform: rotate(45deg); display: block; }
+.lane-arrow.right .line::before { display: none; }
+.lane-arrow.left .line::before { display: block; left: 0; transform: rotate(-135deg); }
+.lane-arrow.left .line::after { display: none; }
+
+.lane-arrow .label {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-size: .78rem;
+}
+.lane-arrow .label .arr {
+  color: var(--terra-2);
+  font-weight: 600;
+  margin: 0 .3rem;
+}
+.lane-arrow.webhook .label .arr { color: var(--olive-2); }
+.lane-arrow .endpoint {
+  font-family: var(--mono);
+  color: var(--ink);
+}
+
+/* Closing note inside swimlane */
+.lane-end {
+  background: var(--paper-2);
+  padding: 1.2rem 1.4rem;
+  font-style: italic;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line);
+}
+
+/* ============================================================
+   FLOW DIAGRAM 6.3 — Cascade tree
+   ============================================================ */
+
+.cascade {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--rad);
+  padding: 2rem 1.5rem 2.5rem;
+  margin: 2rem 0;
+}
+.cas-layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 0 .4rem;
+}
+.cas-down {
+  height: 30px;
+  display: grid; place-items: center;
+  color: var(--terra-2);
+  position: relative;
+}
+.cas-down::after {
+  content: "";
+  display: block;
+  width: 1px; height: 100%;
+  background: var(--terra-2);
+  position: relative;
+}
+.cas-down::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 9px; height: 9px;
+  border-right: 1px solid var(--terra-2);
+  border-bottom: 1px solid var(--terra-2);
+  transform: rotate(45deg);
+}
+
+.cas-input {
+  background: var(--paper);
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  padding: .4rem 1rem;
+  font-size: .82rem;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.cas-input .id { font-family: var(--mono); color: var(--terra-2); font-weight: 500; }
+.cas-input .sub { color: var(--muted); font-size: .76rem; }
+
+.cas-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  padding: .75rem 1rem;
+  text-align: center;
+  min-width: 200px;
+}
+.cas-box .id { font-family: var(--mono); font-size: .82rem; color: var(--terra-2); font-weight: 500; letter-spacing: .04em; }
+.cas-box .lbl { font-family: var(--display); font-size: .98rem; font-variation-settings: "SOFT" 30, "opsz" 28; margin-top: .15rem; }
+
+.cas-step {
+  background: var(--paper-2);
+  border: 1px dashed var(--line);
+  border-radius: var(--rad-s);
+  padding: 1rem 1.2rem;
+  max-width: 380px;
+  margin: 0 auto;
+  text-align: center;
+}
+.cas-step .tag {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: .35rem;
+}
+.cas-step.afe .tag { color: var(--terra); }
+.cas-step.afp .tag { color: var(--gold); }
+.cas-step.ase .tag { color: var(--olive); }
+.cas-step h4 {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 28;
+  margin: 0 0 .5rem;
+}
+.cas-step ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
+}
+.cas-step li {
+  font-size: .78rem;
+  background: var(--cream);
+  border: 1px solid var(--line-soft);
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+.cas-process {
+  display: inline-block;
+  padding: .55rem 1.4rem;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: var(--rad-s);
+  font-family: var(--mono);
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.cas-branch {
+  display: flex; justify-content: center; align-items: flex-start;
+  gap: 1.5rem; flex-wrap: wrap;
+  margin-top: .8rem;
+}
+.cas-leaf {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  padding: .85rem 1rem;
+  min-width: 160px;
+  text-align: center;
+  position: relative;
+}
+.cas-leaf::before {
+  content: "";
+  position: absolute;
+  top: -16px; left: 50%;
+  width: 1px; height: 16px;
+  background: var(--olive-2);
+}
+.cas-leaf .id { font-family: var(--mono); color: var(--olive-2); font-size: .78rem; font-weight: 500; }
+.cas-leaf .lbl { font-family: var(--display); font-size: .95rem; }
+.cas-leaf .qty { font-size: .82rem; color: var(--muted); margin-top: .2rem; }
+.cas-leaf .comp {
+  margin-top: .55rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--ink-3);
+  text-align: left;
+  border-top: 1px dashed var(--line-soft);
+  padding-top: .45rem;
+}
+.cas-leaf .comp div { display: flex; justify-content: space-between; }
+
+.cas-erp {
+  margin-top: 1.2rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 14%, var(--cream)), var(--cream) 70%);
+  border: 1px solid var(--gold);
+  border-left: 4px solid var(--gold);
+  padding: 1rem 1.3rem;
+  border-radius: var(--rad-s);
+  text-align: center;
+  font-style: italic;
+  color: var(--ink-2);
+}
+.cas-erp strong { font-family: var(--mono); font-style: normal; letter-spacing: .12em; font-size: .72rem; color: var(--gold); display: block; margin-bottom: .25rem; }
+
+/* ============================================================
+   EXAMPLE (Section 7)
+   ============================================================ */
+
+.example-steps {
+  position: relative;
+  margin: 1.5rem 0;
+}
+.ex-step {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 1.4rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+}
+.ex-step .ix {
+  font-family: var(--display);
+  font-size: 3rem;
+  line-height: .9;
+  color: var(--terra-3);
+  font-variation-settings: "SOFT" 100, "opsz" 96, "wght" 300;
+  font-style: italic;
+  text-align: right;
+  padding-top: .3rem;
+  border-right: 1px solid var(--line);
+  padding-right: 1rem;
+}
+.ex-step h3 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 36;
+  margin: 0 0 .6rem;
+  color: var(--ink);
+}
+.ex-step .ex-kicker {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .3rem;
+}
+
+/* "Receipt" boxes (PDF-like outputs) */
+.receipt {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  padding: 1.4rem 1.6rem;
+  margin: 1.4rem 0;
+  font-family: var(--mono);
+  font-size: .82rem;
+  white-space: pre-wrap;
+  color: var(--ink-2);
+  line-height: 1.55;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+.receipt::before {
+  /* ticket perforation */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 8px;
+  background-image: radial-gradient(circle 4px at 8px 100%, var(--paper) 4px, transparent 5px);
+  background-size: 16px 8px;
+  background-repeat: repeat-x;
+  pointer-events: none;
+}
+.receipt .head {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--terra-2);
+  margin-bottom: .8rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: .78rem;
+  font-style: normal;
+}
+.receipt b { color: var(--ink); }
+.receipt hr {
+  border-top: 1px dashed var(--line);
+  margin: .7rem 0;
+}
+
+/* Inline stock display (paso 4) */
+.stock-card {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  padding: 1.2rem 1.4rem;
+  margin: 1.2rem 0;
+  font-family: var(--mono);
+  font-size: .85rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.stock-card .title {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--ink);
+  margin-bottom: .6rem;
+  font-variation-settings: "SOFT" 80, "opsz" 36;
+}
+.stock-row { display: grid; grid-template-columns: auto auto auto auto auto auto auto; gap: 1rem; padding: .2rem 0; }
+
+/* ============================================================
+   USE CASES (Section 8)
+   ============================================================ */
+
+.use-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.4rem;
+  margin: 1.5rem 0;
+}
+.uc {
+  background: var(--cream);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--rad);
+  padding: 1.3rem 1.4rem 1.5rem;
+  position: relative;
+  display: flex; flex-direction: column;
+  transition: transform .2s, box-shadow .2s;
+}
+.uc:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); border-color: var(--line); }
+.uc::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--terra);
+  border-radius: var(--rad) var(--rad) 0 0;
+}
+.uc.b::before { background: var(--gold); }
+.uc.c::before { background: var(--olive); }
+.uc-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: .8rem; gap: 1rem;
+}
+.uc-id {
+  font-family: var(--mono);
+  font-size: .7rem;
+  letter-spacing: .18em;
+  color: var(--terra);
+  font-weight: 500;
+}
+.uc.b .uc-id { color: var(--gold); }
+.uc.c .uc-id { color: var(--olive-2); }
+.uc-actor {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .25rem .55rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.uc h3 {
+  font-family: var(--display);
+  font-size: 1.18rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 36;
+  margin: 0 0 .8rem;
+}
+.uc .precond {
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: .8rem;
+  padding: .35rem .6rem;
+  background: var(--paper-2);
+  border-radius: 4px;
+  border-left: 2px solid var(--gold);
+}
+.uc h5 {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin: .8rem 0 .35rem;
+}
+.uc ol { padding-left: 1.2rem; margin: 0 0 .4rem; }
+.uc ol li { font-size: .88rem; color: var(--ink-3); margin-bottom: .2rem; }
+.uc .postcond {
+  margin-top: auto;
+  padding-top: .9rem;
+  border-top: 1px dashed var(--line-soft);
+  font-size: .85rem;
+  color: var(--ink-2);
+}
+.uc .postcond strong { color: var(--olive-2); }
+.uc .alts {
+  margin-top: .8rem;
+  font-size: .82rem;
+  color: var(--ink-3);
+}
+.uc .alts li { font-size: .82rem; margin-bottom: .15rem; }
+.uc .alts strong { color: var(--terra-2); font-weight: 500; }
+
+/* ============================================================
+   API (Section 9)
+   ============================================================ */
+
+.api-table .method {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  padding: .25rem .55rem;
+  border-radius: 4px;
+  font-weight: 600;
+  min-width: 56px;
+  text-align: center;
+}
+.api-table .method.GET  { background: color-mix(in srgb, var(--olive) 15%, var(--cream)); color: var(--olive-2); border: 1px solid color-mix(in srgb, var(--olive) 40%, transparent); }
+.api-table .method.POST { background: color-mix(in srgb, var(--terra) 15%, var(--cream)); color: var(--terra-2); border: 1px solid color-mix(in srgb, var(--terra) 40%, transparent); }
+.api-table td.endpoint { font-family: var(--mono); font-size: .9rem; color: var(--ink-2); }
+
+.webhook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: .8rem;
+  margin: 1.4rem 0;
+}
+.webhook {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--olive) 8%, var(--cream)) 0%, var(--cream) 100%);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--olive);
+  border-radius: 4px;
+  padding: .8rem 1rem;
+}
+.webhook .name {
+  font-family: var(--mono);
+  font-size: .88rem;
+  color: var(--olive-2);
+  font-weight: 500;
+  margin-bottom: .25rem;
+}
+.webhook .desc {
+  font-size: .82rem;
+  color: var(--ink-3);
+}
+
+.principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  overflow: hidden;
+  margin: 1.4rem 0;
+}
+.principle {
+  background: var(--cream);
+  padding: 1rem 1.2rem;
+  font-size: .9rem;
+}
+.principle .pname {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--terra-2);
+  display: block;
+  margin-bottom: .25rem;
+  font-variation-settings: "SOFT" 100, "opsz" 36;
+}
+
+/* ============================================================
+   QUESTIONS (Section 10)
+   ============================================================ */
+
+.qgroup {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--rad);
+  overflow: hidden;
+}
+.qgroup-head {
+  background: var(--paper-2);
+  padding: 1rem 1.3rem;
+  display: flex; align-items: baseline; gap: .9rem;
+  border-bottom: 1px solid var(--line-soft);
+  cursor: pointer;
+  user-select: none;
+  transition: background .2s;
+}
+.qgroup-head:hover { background: var(--paper-3); }
+.qgroup-head .ix {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--terra-2);
+  letter-spacing: .04em;
+}
+.qgroup-head h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30, "opsz" 28;
+  margin: 0;
+  flex: 1;
+}
+.qgroup-head .count {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--muted);
+}
+.qgroup-body {
+  background: var(--cream);
+  padding: 1rem 1.4rem 1.2rem;
+}
+.qgroup ol { margin: 0 0 0 1.2rem; padding: 0; counter-reset: q; }
+.qgroup li {
+  font-size: .92rem;
+  margin: .55rem 0;
+  color: var(--ink-2);
+  padding-left: .2rem;
+}
+.qgroup li strong { color: var(--ink); font-weight: 600; }
+.qgroup li ul { margin: .3rem 0 .3rem 1rem; }
+.qgroup li ul li { font-size: .88rem; color: var(--ink-3); margin: .15rem 0; }
+
+/* ============================================================
+   GLOSSARY (Anexo A)
+   ============================================================ */
+
+.glossary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-s);
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+.gloss {
+  background: var(--cream);
+  padding: 1rem 1.2rem 1.1rem;
+}
+.gloss dt {
+  font-family: var(--display);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--terra-2);
+  margin-bottom: .25rem;
+  font-variation-settings: "SOFT" 80, "opsz" 28;
+}
+.gloss dd { font-size: .88rem; color: var(--ink-3); margin: 0; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+  border-top: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4rem 6vw 3rem;
+  position: relative;
+}
+footer h4 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--paper);
+  font-variation-settings: "SOFT" 100, "opsz" 60;
+  max-width: 30em;
+}
+.foot-meta {
+  display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--paper) 15%, transparent);
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.foot-meta a { color: var(--gold-2); border-color: color-mix(in srgb, var(--gold-2) 30%, transparent); }
+.foot-meta a:hover { color: var(--terra-3); border-color: var(--terra-3); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 240px 1fr; gap: 2.5rem; }
+}
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; padding: 3rem 5vw 4rem; }
+  .toc {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 86vw; max-width: 360px;
+    background: var(--paper);
+    box-shadow: -20px 0 50px -20px rgba(28,17,10,.4);
+    z-index: 95;
+    padding: 5rem 1.5rem 2rem;
+    transform: translateX(100%);
+    transition: transform .3s ease;
+    max-height: none;
+    overflow-y: auto;
+  }
+  .toc.open { transform: translateX(0); }
+  .toc-toggle { display: grid; place-items: center; }
+  .sec-num { font-size: 2.6rem; }
+  .stage { grid-template-columns: 42px 1fr; gap: 1rem; }
+  .stage .step { width: 42px; height: 42px; font-size: 1.1rem; }
+  .flow-linear::before { left: 21px; }
+  .ex-step { grid-template-columns: 60px 1fr; gap: 1rem; }
+  .ex-step .ix { font-size: 2rem; padding-right: .6rem; }
+  .lanes { grid-template-columns: 1fr; }
+  .lanes::before { display: none; }
+  .lane-head { grid-template-columns: 1fr; }
+  .lane-head > div + div { border-left: 0; border-top: 1px solid color-mix(in srgb, var(--cream) 18%, transparent); }
+  .lane-arrow { grid-column: 1 / -1; grid-template-columns: 1fr; }
+  .lane-arrow .line { display: none; }
+  .lane-step.empty { display: none; }
+}
+
+@media (max-width: 600px) {
+  .cover { padding: 3rem 6vw 4rem; }
+  .cover h1 { font-size: clamp(2.2rem, 11vw, 3.4rem); }
+  .sec-head { gap: 1rem; }
+  .sec-num { font-size: 2rem; }
+  .stock-row { grid-template-columns: 1fr; gap: .1rem; }
+}
+
+@media print {
+  body::before { display: none; }
+  .cover { min-height: auto; page-break-after: always; }
+  .toc, .toc-toggle { display: none; }
+  .shell { grid-template-columns: 1fr; }
+  section { page-break-inside: avoid; }
+  .stage, .uc, .qgroup { page-break-inside: avoid; }
+}
+
+/* Subtle animations */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.cover-overline, .cover h1, .cover-tagline, .cover-meta, .cover-bottom {
+  animation: fadeUp .8s cubic-bezier(.22,.61,.36,1) both;
+}
+.cover h1 { animation-delay: .1s; }
+.cover-tagline { animation-delay: .25s; }
+.cover-meta { animation-delay: .4s; }
+.cover-bottom { animation-delay: .6s; }
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     COVER
+     ============================================================ -->
+<header class="cover">
+  <div class="cover-top">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>WOMG SAC · Planta de Procesamiento</span>
+    </div>
+    <div>Propuesta · Versión 1.0</div>
+  </div>
+
+  <div class="cover-main">
+    <div class="cover-overline">Documento técnico</div>
+    <h1>Sistema de Gestión<br>de <em>Servicio de Procesamiento</em><br>de Café</h1>
+    <p class="cover-tagline">
+      Propuesta de alcance, flujos y casos de uso para gestionar el ciclo
+      completo de recepción, custodia, procesamiento, análisis de calidad,
+      liquidación y despacho del café que terceros confían a WOMG SAC.
+    </p>
+
+    <div class="cover-meta">
+      <div class="cell"><div class="label">Cliente</div><div class="value">WOMG SAC</div></div>
+      <div class="cell"><div class="label">Documento</div><div class="value">Propuesta de Alcance</div></div>
+      <div class="cell"><div class="label">Versión</div><div class="value">1.0</div></div>
+      <div class="cell"><div class="label">Fecha</div><div class="value">Mayo 2026</div></div>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <div>Trazabilidad operativa · Portal del cliente · API pública</div>
+    <div class="scroll-cue">Leer documento <span class="arrow"></span></div>
+  </div>
+</header>
+
+<!-- ============================================================
+     SHELL
+     ============================================================ -->
+<div class="shell">
+
+  <!-- TOC -->
+  <aside class="toc" id="toc">
+    <div class="toc-title">Tabla de contenidos</div>
+    <ol>
+      <li><a href="#s1">Resumen Ejecutivo</a></li>
+      <li><a href="#s2">Contexto del Negocio</a></li>
+      <li><a href="#s3">Alcance del Proyecto</a></li>
+      <li><a href="#s4">Conceptos Clave del Modelo</a></li>
+      <li><a href="#s5">Módulos del Sistema</a></li>
+      <li><a href="#s6">Diagramas de Flujo</a></li>
+      <li><a href="#s7">Ejemplo Práctico End-to-End</a></li>
+      <li><a href="#s8">Casos de Uso</a></li>
+      <li><a href="#s9">Estrategia de Integración por API</a></li>
+      <li><a href="#s10">Preguntas Pendientes para el Cliente</a></li>
+      <li><a href="#anexo">Anexo A · Glosario</a></li>
+    </ol>
+  </aside>
+
+  <button class="toc-toggle" id="tocToggle" aria-label="Tabla de contenidos">TOC</button>
+
+  <main>
+
+    <!-- ============================================================
+         §1 RESUMEN EJECUTIVO
+         ============================================================ -->
+    <section id="s1">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <div>
+          <span class="kicker">Sección uno</span>
+          <h2>Resumen Ejecutivo</h2>
+        </div>
+      </div>
+
+      <p>WOMG SAC opera una planta de procesamiento de café que presta <strong>servicio a terceros</strong>. El café <strong>nunca es propiedad</strong> de WOMG: ingresa, se custodia, se procesa según las instrucciones del cliente y se devuelve como producto terminado. El sistema a construir debe gestionar este ciclo de servicio de extremo a extremo, manteniendo la <strong>trazabilidad operativa</strong> del café de cada cliente y exponiendo todo por <strong>API genérica</strong> para que cualquier ERP externo pueda integrarse.</p>
+
+      <p>El sistema <strong>no</strong> abarcará trazabilidad de exportación, contabilidad ni facturación electrónica en esta primera versión — eso queda en el ámbito del ERP propio de WOMG y/o de los ERP de los clientes (como SurConecta).</p>
+    </section>
+
+    <!-- ============================================================
+         §2 CONTEXTO
+         ============================================================ -->
+    <section id="s2">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <div>
+          <span class="kicker">Sección dos</span>
+          <h2>Contexto del Negocio</h2>
+        </div>
+      </div>
+
+      <h3 class="sub"><span class="ix">2.1</span> Quién es WOMG SAC</h3>
+      <p>Empresa peruana que presta servicio de <strong>procesamiento industrial de café pergamino</strong> a cooperativas, exportadores y acopiadores. Recibe café en custodia, lo procesa según las especificaciones del cliente (tipo de proceso, separación de mallas, envase, empaque) y entrega producto terminado clasificado en exportable, segunda y subproductos.</p>
+
+      <h3 class="sub"><span class="ix">2.2</span> Diferencia clave con sistemas de acopio</h3>
+      <p>Es crítico distinguir este negocio de un sistema de acopio tradicional:</p>
+
+      <div class="table-wrap">
+        <table class="compare">
+          <thead>
+            <tr><th>Aspecto</th><th>Sistema de Acopio (ej. SurConecta)</th><th>WOMG (Planta de Servicio)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Dueño del café</td><td>La cooperativa / acopiador</td><td>El cliente externo (siempre)</td></tr>
+            <tr><td>Operación principal</td><td>Compra de café al productor</td><td>Prestación de servicio de transformación</td></tr>
+            <tr><td>Unidad mínima de origen</td><td>Lote del agricultor</td><td>Lote del cliente (recibido como referencia)</td></tr>
+            <tr><td>Trazabilidad típica</td><td>Hacia atrás: agricultor, finca, parcela</td><td>Hacia el servicio: recepción, proceso, despacho</td></tr>
+            <tr><td>Documento clave</td><td>Comprobante de compra</td><td>Guía de remisión del cliente + Liquidación de servicio</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub"><span class="ix">2.3</span> Ciclo de negocio en alto nivel</h3>
+      <ol>
+        <li>El cliente programa un envío de café.</li>
+        <li>El café llega a planta, se pesa, se analiza y se almacena en <strong>custodia</strong>.</li>
+        <li>El cliente, cuando decide, emite una <strong>Orden de Proceso (OP)</strong> indicando qué procesar y cómo.</li>
+        <li>La planta arma un <strong>Lote de Proceso</strong> y ejecuta el procesamiento.</li>
+        <li>Se genera una <strong>Liquidación</strong> con los resultados y se actualiza el stock terminado.</li>
+        <li>El cliente recoge su producto terminado (despacho).</li>
+      </ol>
+    </section>
+
+    <!-- ============================================================
+         §3 ALCANCE
+         ============================================================ -->
+    <section id="s3">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <div>
+          <span class="kicker">Sección tres</span>
+          <h2>Alcance del Proyecto</h2>
+        </div>
+      </div>
+
+      <div class="scope-grid">
+        <div class="scope-panel in">
+          <h4>3.1 · Dentro del alcance (V1)</h4>
+          <ul>
+            <li>Gestión completa del ciclo de servicio: programación → recepción → custodia → orden de proceso → ejecución → liquidación → despacho.</li>
+            <li><strong>Portal del Cliente</strong> (autoservicio) para programar envíos, emitir órdenes de proceso, consultar stock y descargar liquidaciones.</li>
+            <li><strong>Trazabilidad operativa del servicio</strong> con preservación del identificador de lote del cliente a lo largo de toda la cadena.</li>
+            <li><strong>Módulo de Calidad / Laboratorio</strong> con análisis físico de entrada, análisis post-proceso y catación.</li>
+            <li><strong>Almacén virtual por cliente</strong> con kardex por tipo de café y subproducto.</li>
+            <li><strong>Gestión de capacidad</strong> de planta con cronograma de turnos.</li>
+            <li><strong>APIs públicas y documentadas</strong> para integración con cualquier ERP externo (SurConecta u otro).</li>
+            <li>Notificaciones por correo y WhatsApp en hitos clave.</li>
+          </ul>
+        </div>
+        <div class="scope-panel out">
+          <h4>3.2 · Fuera del alcance (V1)</h4>
+          <ul>
+            <li><strong>Contabilidad y facturación electrónica</strong> de WOMG (irá en una versión posterior o en otro sistema).</li>
+            <li><strong>Trazabilidad de exportación</strong> (DUA, certificados de origen, FLO-ID, ICO marks): es responsabilidad del ERP del cliente.</li>
+            <li><strong>Gestión agrícola</strong> (productores, fincas, parcelas, cosecha, beneficio húmedo): no aplica al negocio de servicio.</li>
+            <li><strong>Compra-venta de café</strong> propio: WOMG no comercializa café.</li>
+            <li><strong>Gestión de RRHH, planillas, mantenimiento de maquinaria</strong>: fuera de este sistema.</li>
+          </ul>
+        </div>
+        <div class="scope-panel assume">
+          <h4>3.3 · Supuestos</h4>
+          <ul>
+            <li>El café que ingresa ya viene en estado pergamino (o equivalente listo para procesar).</li>
+            <li>WOMG cuenta con balanza electrónica con software propio (visto en el Ticket de Pesaje N° 8928). Se evaluará integración o reemplazo en fase de diseño.</li>
+            <li>Los clientes pueden o no tener un ERP propio. El sistema debe funcionar para ambos casos.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         §4 CONCEPTOS
+         ============================================================ -->
+    <section id="s4">
+      <div class="sec-head">
+        <div class="sec-num">04</div>
+        <div>
+          <span class="kicker">Sección cuatro</span>
+          <h2>Conceptos Clave del Modelo</h2>
+        </div>
+      </div>
+
+      <p>Antes de los flujos, hay que dejar fijos cinco conceptos que se entrelazan en todo el sistema.</p>
+
+      <div class="concept-grid">
+        <article class="concept">
+          <div class="num">4.1</div>
+          <h4>Recepción</h4>
+          <p>Unidad de <strong>ingreso</strong> a la planta. Cada guía de remisión que llega del cliente genera <strong>una Recepción</strong>. Una Recepción puede contener <strong>múltiples ítems</strong>, donde cada ítem corresponde a un <strong>lote del cliente</strong> (con su código de origen).</p>
+        </article>
+        <article class="concept">
+          <div class="num">4.2</div>
+          <h4>Lote de Proceso</h4>
+          <p>Unidad de <strong>procesamiento</strong>. Se forma agrupando una o varias Recepciones (o porciones de ellas) bajo una sola Orden de Proceso. Es lo que entra a la máquina como una corrida.</p>
+        </article>
+        <article class="concept">
+          <div class="num">4.3</div>
+          <h4>Lote de Producto Terminado</h4>
+          <p>Cada subproducto que sale de un Lote de Proceso: Exportable, Segunda, Escojo, Menudo, Coco, Cáscara, Piedra. Cada Lote Hijo conserva la <strong>composición de origen</strong>.</p>
+        </article>
+        <article class="concept">
+          <div class="num">4.4</div>
+          <h4>Identificador opaco del cliente</h4>
+          <p>El <strong>código de lote del cliente</strong> (ej. "SC-001") se almacena como <strong>referencia textual</strong>. WOMG no necesita saber a qué agricultor, finca o parcela corresponde.</p>
+        </article>
+        <article class="concept">
+          <div class="num">4.5</div>
+          <h4>Prorrateo de masa</h4>
+          <p>Cuando varios lotes del cliente se mezclan, físicamente el café se mezcla y no se puede separar. La industria acepta el <strong>prorrateo de masa</strong> como mecanismo válido de trazabilidad.</p>
+        </article>
+      </div>
+
+      <blockquote>
+        Ejemplo: Camión llega con Guía 0001 que trae 50 sacos del lote SC-001 + 80 sacos del lote SC-002. Se crea 1 Recepción con 2 ítems.
+      </blockquote>
+
+      <h3 class="sub"><span class="ix">4.6</span> Los tres análisis de calidad — AFE, AFP, ASE</h3>
+      <p>El servicio de WOMG no se cierra solo con pesos y kilos: se cierra con <strong>evidencia de calidad</strong>. El sistema captura tres análisis en momentos distintos del ciclo:</p>
+
+      <div class="analyses">
+        <article class="analysis afe">
+          <span class="ana-tag">AFE</span>
+          <h4>Análisis Físico de Entrada</h4>
+          <p>Al ingreso de cada Recepción. Mide humedad, rendimiento exportable estimado, granulometría preliminar, defectos físicos en 300 g e impurezas. Es el "estado del café tal como llegó". Sin AFE no se libera el café a custodia.</p>
+        </article>
+        <article class="analysis afp">
+          <span class="ana-tag">AFP</span>
+          <h4>Análisis Físico Post-Proceso</h4>
+          <p>Después del proceso, sobre el exportable resultante. Mide rendimiento real, defectos en 300 g (primarios y secundarios), granulometría final, humedad de salida y densidad. Es el "estado del café procesado en grano".</p>
+        </article>
+        <article class="analysis ase">
+          <span class="ana-tag">ASE</span>
+          <h4>Análisis Sensorial / Catación</h4>
+          <p>Después del AFP, sobre muestra tostada. Mide puntaje en taza (SCA u otra), perfil sensorial (acidez, cuerpo, dulzor, notas, retrogusto) y defectos en taza. Es el "estado del café procesado en taza".</p>
+        </article>
+      </div>
+
+      <p>La <strong>Liquidación</strong> consolida los tres análisis junto con la composición de origen, y es el documento que el cliente recibe al final. Sin AFP y ASE (cuando aplica) no se emite Liquidación.</p>
+    </section>
+
+    <!-- ============================================================
+         §5 MÓDULOS
+         ============================================================ -->
+    <section id="s5">
+      <div class="sec-head">
+        <div class="sec-num">05</div>
+        <div>
+          <span class="kicker">Sección cinco</span>
+          <h2>Módulos del Sistema</h2>
+        </div>
+      </div>
+
+      <div class="modules">
+        <div class="module"><div class="mid">01</div><div><h4>Maestros y Configuración</h4><p>Clientes, usuarios, roles, certificaciones, tipos de proceso, envases, almacenes, capacidades.</p></div></div>
+        <div class="module"><div class="mid">02</div><div><h4>Programación de Ingreso</h4><p>Calendario con turnos, reserva, control de capacidad, alertas de saturación.</p></div></div>
+        <div class="module"><div class="mid">03</div><div><h4>Recepción en Planta</h4><p>Guía, pesaje, creación de Recepción con ítems multi-lote, toma de muestra para AFE.</p></div></div>
+        <div class="module"><div class="mid">04</div><div><h4>Almacén Virtual / Custodia</h4><p>Kardex por cliente, tipo de café, certificación y ubicación.</p></div></div>
+        <div class="module"><div class="mid">05</div><div><h4>Orden de Proceso (OP)</h4><p>Portal del cliente para emitir OP, selección de recepciones, especificaciones.</p></div></div>
+        <div class="module"><div class="mid">06</div><div><h4>Ejecución de Proceso</h4><p>Vista de operador, registro de pesos por subproducto, creación de Lotes Hijos.</p></div></div>
+        <div class="module"><div class="mid">07</div><div><h4>Calidad / Laboratorio</h4><p>AFE, AFP, ASE, gestión de contramuestras.</p></div></div>
+        <div class="module"><div class="mid">08</div><div><h4>Liquidación</h4><p>Documento consolidado del servicio con composición de origen y rendimientos.</p></div></div>
+        <div class="module"><div class="mid">09</div><div><h4>Despacho</h4><p>Orden de despacho, pesaje de salida, guía de remisión, descuento de stock.</p></div></div>
+        <div class="module"><div class="mid">10</div><div><h4>Trazabilidad y Reportes</h4><p>Vista hacia atrás desde cualquier lote terminado, reportes operativos.</p></div></div>
+        <div class="module"><div class="mid">11</div><div><h4>Portal del Cliente</h4><p>Interfaz de autoservicio (consume módulos 2, 4, 5, 7, 8, 9).</p></div></div>
+        <div class="module"><div class="mid">12</div><div><h4>API Pública</h4><p>Endpoints REST para integración con cualquier ERP externo.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         §6 DIAGRAMAS
+         ============================================================ -->
+    <section id="s6">
+      <div class="sec-head">
+        <div class="sec-num">06</div>
+        <div>
+          <span class="kicker">Sección seis</span>
+          <h2>Diagramas de Flujo</h2>
+        </div>
+      </div>
+
+      <!-- ===== 6.1 Linear flow ===== -->
+      <h3 class="sub"><span class="ix">6.1</span> Flujo SIN integración API — cliente sin ERP</h3>
+      <p>Aplica para clientes pequeños que no tienen sistema propio y operan manualmente a través del portal web.</p>
+
+      <div class="flow-linear">
+
+        <div class="stage">
+          <div class="step">1</div>
+          <div class="body">
+            <div class="actor">Cliente (manual)</div>
+            <h4>Programación de envío</h4>
+            <ul>
+              <li>Ingresa al Portal y programa envío (fecha, turno, sacos estimados, lotes que enviará).</li>
+              <li>El sistema valida capacidad disponible, reserva turno y notifica por correo / WhatsApp.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="step">2</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Recepción</div>
+            <h4>Camión llega a planta</h4>
+            <ul>
+              <li>Operador registra guía, transporte y pesaje.</li>
+              <li>Digita ítems: códigos de lote del cliente + sacos + kg.</li>
+              <li>Genera N° de Recepción (REC-XXX) en estado <em>"Pendiente AFE"</em>.</li>
+              <li>Asigna ubicación en almacén y emite ticket de contramuestra.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage afe">
+          <div class="step">3</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Laboratorio</div>
+            <h4>Análisis Físico de Entrada (AFE)</h4>
+            <ul>
+              <li>Humedad del café pergamino.</li>
+              <li>Rendimiento exportable estimado.</li>
+              <li>Granulometría (malla).</li>
+              <li>Defectos físicos preliminares.</li>
+              <li>Cáscara, % de impurezas.</li>
+              <li>Analista firma → Recepción pasa a <em>"En Custodia"</em>.</li>
+              <li>Notifica al cliente con los resultados.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="step">4</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Almacén Virtual</div>
+            <h4>Café en custodia</h4>
+            <ul>
+              <li>Kardex muestra: lotes del cliente, sacos, kg, humedad de AFE, rendimiento estimado, ubicación, antigüedad.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="step">5</div>
+          <div class="body">
+            <div class="actor">Cliente · Portal</div>
+            <h4>Orden de Proceso</h4>
+            <ul>
+              <li>Cliente selecciona recepciones a procesar.</li>
+              <li>Define tipo de proceso, taza buscada, envase, empaque.</li>
+              <li>Sistema valida reglas de agrupación.</li>
+              <li>Cliente firma digitalmente y envía.</li>
+              <li>Planta acepta → se forma Lote de Proceso (LP-XXX).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="step">6</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Operación</div>
+            <h4>Ejecución de proceso</h4>
+            <ul>
+              <li>Registra inicio / fin.</li>
+              <li>Captura pesos por subproducto.</li>
+              <li>Crea Lotes Hijos (Exportable, Segunda, Escojo, etc.).</li>
+              <li>Sistema calcula composición de origen por prorrateo de masa.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage afp">
+          <div class="step">7</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Laboratorio</div>
+            <h4>Análisis Físico Post-Proceso (AFP)</h4>
+            <ul>
+              <li>Rendimiento real obtenido.</li>
+              <li>Defectos en 300 g (primarios y secundarios).</li>
+              <li>Granulometría final por malla.</li>
+              <li>Humedad de salida.</li>
+              <li>Densidad, color, aspecto.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage ase">
+          <div class="step">8</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Catación</div>
+            <h4>Análisis Sensorial / Catación (ASE)</h4>
+            <ul>
+              <li>Tostado de muestra.</li>
+              <li>Puntaje en taza (escala SCA u otra).</li>
+              <li>Perfil sensorial (acidez, cuerpo, dulzor, notas).</li>
+              <li>Defectos en taza.</li>
+              <li>Resultados asociados a los Lotes Hijos exportables.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage liq">
+          <div class="step">9</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Liquidación</div>
+            <h4>Liquidación firmada</h4>
+            <ul>
+              <li>Consolida: ingreso, AFE, proceso, AFP, ASE, composición.</li>
+              <li>Jefe de Planta revisa y firma.</li>
+              <li>Genera Liquidación (LIQ-XXX) en PDF.</li>
+              <li>Cliente descarga desde portal; notificación al cliente.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="step">10</div>
+          <div class="body">
+            <div class="actor">Sistema WOMG · Despacho</div>
+            <h4>Entrega al cliente</h4>
+            <ul>
+              <li>Picking en almacén.</li>
+              <li>Pesaje de salida.</li>
+              <li>Guía de remisión de salida con composición de origen.</li>
+              <li>Descuento de stock.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== 6.2 Swim-lane ===== -->
+      <h3 class="sub"><span class="ix">6.2</span> Flujo CON integración API — cliente con ERP (ej. SurConecta)</h3>
+      <p>Aplica para clientes que tienen sistema propio y quieren automatizar el intercambio de información.</p>
+
+      <div class="swimlane">
+        <div class="lane-head">
+          <div><span class="badge"></span> ERP del Cliente <span style="color:var(--muted-2); margin-left:.4rem;">(ej. SurConecta)</span></div>
+          <div><span class="badge olive"></span> Sistema WOMG</div>
+        </div>
+
+        <div class="lanes">
+
+          <!-- Step 1: ERP registra envío -->
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">1</span> ERP registra envío</div>
+            <div class="title">El ERP registra el envío programado</div>
+            <div class="detail">Datos de lotes, sacos, fechas y guía.</div>
+          </div>
+          <div class="lane-step empty"></div>
+
+          <div class="lane-arrow right">
+            <div></div>
+            <div class="label"><span class="endpoint">POST /api/envios</span> <span class="arr">→</span> <span>{ cliente, fecha, items[] }</span></div>
+            <div class="line"></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">2</span> WOMG procesa</div>
+            <div class="title">Crea reserva de cronograma</div>
+            <div class="detail">Valida capacidad y registra el envío.</div>
+          </div>
+
+          <div class="lane-arrow left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">←</span> <span class="endpoint">201 Created</span> <span>+ envio_id</span></div>
+            <div></div>
+          </div>
+
+          <!-- Camión llega -->
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">3</span> Físico</div>
+            <div class="title">Camión llega físicamente a planta</div>
+          </div>
+          <div class="lane-step">
+            <div class="actor-step">Recepción</div>
+            <div class="title">Operador valida contra el envío</div>
+            <div class="detail">Pesa, registra ítems y genera REC-XXX.</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>recepcion.creada</b> <span>(REC-XXX, pesos reales)</span></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Laboratorio</div>
+            <div class="title">Análisis Físico de Entrada (AFE)</div>
+            <div class="detail">Humedad, rendimiento, granulometría, defectos.</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>recepcion.analizada</b></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Custodia</div>
+            <div class="title">Café en custodia</div>
+            <div class="detail">Visible en almacén virtual del cliente.</div>
+          </div>
+
+          <!-- OP -->
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">4</span> ERP decide procesar</div>
+            <div class="title">Emite Orden de Proceso</div>
+          </div>
+          <div class="lane-step empty"></div>
+
+          <div class="lane-arrow right">
+            <div></div>
+            <div class="label"><span class="endpoint">POST /api/ordenes-proceso</span> <span class="arr">→</span></div>
+            <div class="line"></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Validación</div>
+            <div class="title">Crea Lote de Proceso</div>
+            <div class="detail">Valida reglas de agrupación.</div>
+          </div>
+
+          <div class="lane-arrow left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">←</span> <span class="endpoint">201 + op_id</span></div>
+            <div></div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>proceso.iniciado</b></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Operación</div>
+            <div class="title">Proceso ejecutado</div>
+            <div class="detail">Pesos por subproducto, lotes hijos creados.</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>proceso.finalizado</b> <span>(composición de origen)</span></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Laboratorio</div>
+            <div class="title">Análisis Físico Post-Proceso</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>analisis.fisico_post</b></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Catación</div>
+            <div class="title">Análisis Sensorial / Catación</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>catacion.realizada</b></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step empty"></div>
+          <div class="lane-step">
+            <div class="actor-step">Cierre</div>
+            <div class="title">Liquidación firmada</div>
+            <div class="detail">Por Jefe de Planta. AFE + AFP + ASE consolidados.</div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>liquidacion.emitida</b> <span>(LIQ-XXX, PDF)</span></div>
+            <div></div>
+          </div>
+
+          <!-- Despacho -->
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">5</span> ERP solicita despacho</div>
+            <div class="title">Solicitud de despacho</div>
+          </div>
+          <div class="lane-step empty"></div>
+
+          <div class="lane-arrow right">
+            <div></div>
+            <div class="label"><span class="endpoint">POST /api/despachos</span> <span class="arr">→</span></div>
+            <div class="line"></div>
+          </div>
+
+          <div class="lane-arrow webhook left">
+            <div class="line"></div>
+            <div class="label"><span class="arr">◂</span> webhook · <b>despacho.entregado</b> <span>(DES-XXX con composición)</span></div>
+            <div></div>
+          </div>
+
+          <div class="lane-step">
+            <div class="actor-step"><span class="nb">6</span> ERP reconstruye</div>
+            <div class="title">Trazabilidad de origen</div>
+            <div class="detail">Agricultor, finca, parcela.</div>
+          </div>
+          <div class="lane-step empty"></div>
+
+        </div>
+
+        <div class="lane-end">
+          <strong>Lo clave de este flujo:</strong> el ERP del cliente nunca pierde el hilo de sus lotes propios. WOMG le devuelve, en cada hito (recepción, AFE, proceso, AFP, ASE, liquidación, despacho), la información de qué pasó con los códigos que el cliente envió.
+        </div>
+      </div>
+
+      <!-- ===== 6.3 Cascade ===== -->
+      <h3 class="sub"><span class="ix">6.3</span> Cómo se preserva la identidad del lote del cliente</h3>
+
+      <div class="cascade">
+
+        <div style="text-align:center; font-family:var(--mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem;">ERP del Cliente</div>
+
+        <div class="cas-layer">
+          <div class="cas-input"><span class="id">SC-001</span> <span class="sub">Juan · La Esperanza</span></div>
+          <div class="cas-input"><span class="id">SC-002</span> <span class="sub">María · El Mirador</span></div>
+          <div class="cas-input"><span class="id">SC-003</span> <span class="sub">Pedro · San Antonio</span></div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div style="text-align:center; font-family:var(--mono); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--terra); margin-bottom:1rem;">Sistema WOMG</div>
+
+        <div class="cas-layer">
+          <div class="cas-box"><div class="id">REC-101</div><div class="lbl">Guía 0001</div></div>
+          <div class="cas-box"><div class="id">REC-102</div><div class="lbl">Guía 0002</div></div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-step afe">
+            <div class="tag">AFE · Análisis Físico de Entrada</div>
+            <h4>Por cada recepción</h4>
+            <ul>
+              <li>Humedad</li>
+              <li>Rendimiento estim.</li>
+              <li>Granulometría</li>
+              <li>Defectos prelim.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-box" style="border-color:var(--terra); background:color-mix(in srgb, var(--terra) 10%, var(--paper));">
+            <div class="id">LP-2026-001</div>
+            <div class="lbl">Lote de Proceso</div>
+            <div style="font-size:.74rem; color:var(--muted); margin-top:.4rem; font-family:var(--mono);">
+              38.5 % SC-001 · 45.5 % SC-002 · 16.0 % SC-003
+            </div>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-box"><div class="id">OP-2026-014</div><div class="lbl">Orden de Proceso</div></div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-process">Proceso ejecutado</div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-branch">
+          <div class="cas-leaf">
+            <div class="id">LH-Exportable</div>
+            <div class="lbl">Malla 14+</div>
+            <div class="qty">10 000 kg</div>
+            <div class="comp">
+              <div><span>SC-001</span><b>38.5 %</b></div>
+              <div><span>SC-002</span><b>45.5 %</b></div>
+              <div><span>SC-003</span><b>16.0 %</b></div>
+            </div>
+          </div>
+          <div class="cas-leaf">
+            <div class="id">LH-Segunda</div>
+            <div class="lbl">Segunda</div>
+            <div class="qty">800 kg</div>
+            <div class="comp">
+              <div><span>SC-001</span><b>38.5 %</b></div>
+              <div><span>SC-002</span><b>45.5 %</b></div>
+              <div><span>SC-003</span><b>16.0 %</b></div>
+            </div>
+          </div>
+          <div class="cas-leaf">
+            <div class="id">LH-Escojo</div>
+            <div class="lbl">Escojo, etc.</div>
+            <div class="qty">…</div>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-step afp">
+            <div class="tag">AFP · Análisis Físico Post-Proceso</div>
+            <h4>Sobre el exportable</h4>
+            <ul>
+              <li>Rendimiento real</li>
+              <li>Defectos 300 g</li>
+              <li>Granulometría final</li>
+              <li>Humedad de salida</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-step ase">
+            <div class="tag">ASE · Análisis Sensorial</div>
+            <h4>Catación</h4>
+            <ul>
+              <li>Puntaje en taza</li>
+              <li>Perfil sensorial</li>
+              <li>Defectos en taza</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-box" style="border-color:var(--ink); background:var(--ink); color:var(--cream);">
+            <div class="id" style="color:var(--gold-2);">LIQ-2026-014</div>
+            <div class="lbl" style="color:var(--cream);">Liquidación</div>
+            <div style="font-size:.74rem; opacity:.8; margin-top:.3rem;">AFE + Proceso + AFP + ASE + composición</div>
+          </div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-layer">
+          <div class="cas-box"><div class="id">DES-2026-045</div><div class="lbl">Despacho</div><div style="font-size:.74rem; color:var(--muted); margin-top:.2rem;">Composición devuelta al cliente</div></div>
+        </div>
+
+        <div class="cas-down"></div>
+
+        <div class="cas-erp">
+          <strong>ERP del Cliente</strong>
+          Reconstruye trazabilidad completa hacia agricultores y fincas.
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         §7 EJEMPLO END-TO-END
+         ============================================================ -->
+    <section id="s7">
+      <div class="sec-head">
+        <div class="sec-num">07</div>
+        <div>
+          <span class="kicker">Sección siete</span>
+          <h2>Ejemplo Práctico End-to-End</h2>
+        </div>
+      </div>
+
+      <p>Para que se entienda cómo se materializa todo lo anterior, sigamos un caso completo.</p>
+
+      <h3 class="sub"><span class="ix">7.1</span> Punto de partida</h3>
+      <p>La Cooperativa Cafetalera ABC tiene en su ERP estos tres lotes registrados:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Lote</th><th>Agricultor</th><th>Finca</th><th class="num">Sacos</th><th class="num">Kg</th><th>Certificación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>SC-001</strong></td><td>Juan Pérez</td><td>La Esperanza, parcela 3</td><td class="num">50</td><td class="num">3 450</td><td>Orgánico + FT</td></tr>
+            <tr><td><strong>SC-002</strong></td><td>María López</td><td>El Mirador, parcela 1</td><td class="num">80</td><td class="num">5 520</td><td>Orgánico + FT</td></tr>
+            <tr><td><strong>SC-003</strong></td><td>Pedro Ruiz</td><td>San Antonio, parcela 2</td><td class="num">120</td><td class="num">8 280</td><td>Orgánico + FT</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <blockquote>Estos datos (agricultor, finca) <strong>viven solo en el ERP del cliente</strong>. WOMG nunca los ve.</blockquote>
+
+      <div class="example-steps">
+
+        <div class="ex-step">
+          <div class="ix">7.2</div>
+          <div>
+            <div class="ex-kicker">Paso 1</div>
+            <h3>Programación de envío</h3>
+            <p>ABC entra al Portal de WOMG (o llama a la API) y programa:</p>
+            <ul>
+              <li><strong>Envío ENV-2026-040</strong>: fecha 20-mayo, turno mañana, 2 camiones.</li>
+              <li>Camión 1 (Guía 0001): SC-001 (50 sacos) + SC-002 (80 sacos)</li>
+              <li>Camión 2 (Guía 0002): SC-003 (120 sacos)</li>
+            </ul>
+            <p>WOMG valida que tiene capacidad y confirma.</p>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.3</div>
+          <div>
+            <div class="ex-kicker">Paso 2</div>
+            <h3>Recepción — pesaje e ingreso al sistema</h3>
+            <p>El 20-mayo llegan los camiones. El operador de balanza registra los pesos y los ítems declarados:</p>
+            <ul>
+              <li><strong>REC-101</strong> (Guía 0001):
+                <ul style="margin-top:.2rem;">
+                  <li>Ítem A: SC-001, 50 sacos, peso neto 3 445 kg</li>
+                  <li>Ítem B: SC-002, 80 sacos, peso neto 5 510 kg</li>
+                </ul>
+              </li>
+              <li><strong>REC-102</strong> (Guía 0002):
+                <ul style="margin-top:.2rem;">
+                  <li>Ítem C: SC-003, 120 sacos, peso neto 8 275 kg</li>
+                </ul>
+              </li>
+            </ul>
+            <p>Total ingresado: 250 sacos / 17 230 kg. Ambas recepciones quedan en estado <strong>"Pendiente de Análisis Físico de Entrada"</strong>.</p>
+            <blockquote>Los pesos reales pueden diferir ligeramente de los estimados — esto es normal y queda registrado como observación.</blockquote>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.4</div>
+          <div>
+            <div class="ex-kicker">Paso 3 · AFE</div>
+            <h3>Análisis Físico de Entrada</h3>
+            <p>El laboratorio toma una muestra representativa de cada recepción al pie de balanza y registra:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Recepción</th><th>Lote</th><th class="num">Humedad</th><th class="num">Rendimiento</th><th>Granulometría</th><th class="num">Defectos</th><th class="num">Impurezas</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>REC-101</td><td>SC-001</td><td class="num">11.8 %</td><td class="num">76 %</td><td>Malla 14+</td><td class="num">8 / 300 g</td><td class="num">1.2 %</td></tr>
+                  <tr><td>REC-101</td><td>SC-002</td><td class="num">12.0 %</td><td class="num">75 %</td><td>Malla 14+</td><td class="num">10 / 300 g</td><td class="num">1.5 %</td></tr>
+                  <tr><td>REC-102</td><td>SC-003</td><td class="num">11.9 %</td><td class="num">76 %</td><td>Malla 14+</td><td class="num">9 / 300 g</td><td class="num">1.3 %</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>El analista firma digitalmente. Las recepciones pasan a estado <strong>"En Custodia"</strong> y se notifica al cliente con los resultados de AFE. La contramuestra queda etiquetada y guardada.</p>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.5</div>
+          <div>
+            <div class="ex-kicker">Paso 4</div>
+            <h3>Almacén virtual</h3>
+            <p>El portal de ABC muestra:</p>
+
+            <div class="stock-card">
+              <div class="title">Stock de café en custodia — Cliente ABC</div>
+              <div style="color:var(--ink-3); margin-bottom:.5rem;">Recepción <b style="color:var(--terra-2)">REC-101</b> (Guía 0001) — 20/05/2026</div>
+              <div>&nbsp;&nbsp;├─ <b style="color:var(--terra-2)">SC-001</b>  50 sacos · 3 445 kg · H 11.8 % · Rdmto 76 % · Ubic. A-1</div>
+              <div>&nbsp;&nbsp;└─ <b style="color:var(--terra-2)">SC-002</b>  80 sacos · 5 510 kg · H 12.0 % · Rdmto 75 % · Ubic. A-1</div>
+              <div style="margin-top:.6rem; color:var(--ink-3);">Recepción <b style="color:var(--terra-2)">REC-102</b> (Guía 0002) — 20/05/2026</div>
+              <div>&nbsp;&nbsp;└─ <b style="color:var(--terra-2)">SC-003</b>  120 sacos · 8 275 kg · H 11.9 % · Rdmto 76 % · Ubic. A-2</div>
+              <div style="margin-top:.8rem; padding-top:.6rem; border-top:1px dashed var(--line); color:var(--ink);"><b>TOTAL · 250 sacos / 17 230 kg</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.6</div>
+          <div>
+            <div class="ex-kicker">Paso 5</div>
+            <h3>Orden de Proceso</h3>
+            <p>ABC decide procesar los tres lotes juntos. Emite <strong>OP-2026-014</strong>:</p>
+            <ul>
+              <li>Recepciones a procesar: REC-101 (completa) + REC-102 (completa)</li>
+              <li>Tipo de proceso: G1 (con separación de mallas)</li>
+              <li>Taza objetivo: 84+</li>
+              <li>Envase: Yute + GrainPro</li>
+              <li>Empaque: sacos individuales</li>
+              <li>Servicios adicionales: catación post-proceso</li>
+            </ul>
+            <p>Sistema valida (mismo cliente ✓, mismas certificaciones ✓, mismo tipo ✓, AFE realizado ✓) y crea <strong>Lote de Proceso LP-2026-001</strong>:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Lote</th><th class="num">Kg</th><th class="num">%</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>SC-001</td><td class="num">3 445</td><td class="num">20.0 %</td></tr>
+                  <tr><td>SC-002</td><td class="num">5 510</td><td class="num">32.0 %</td></tr>
+                  <tr><td>SC-003</td><td class="num">8 275</td><td class="num">48.0 %</td></tr>
+                  <tr><td><strong>Total</strong></td><td class="num"><strong>17 230</strong></td><td class="num"><strong>100 %</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.7</div>
+          <div>
+            <div class="ex-kicker">Paso 6</div>
+            <h3>Ejecución del proceso</h3>
+            <p>El operador inicia el proceso el 22-mayo a las 8:00 y termina a las 14:30. Captura los pesos resultantes:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Subproducto</th><th class="num">Kg</th><th class="num">% del total</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Exportable Malla 14+</td><td class="num">10 200</td><td class="num">59.2 %</td></tr>
+                  <tr><td>Exportable Malla 13</td><td class="num">2 150</td><td class="num">12.5 %</td></tr>
+                  <tr><td>Segunda</td><td class="num">850</td><td class="num">4.9 %</td></tr>
+                  <tr><td>Escojo</td><td class="num">320</td><td class="num">1.9 %</td></tr>
+                  <tr><td>Menudo</td><td class="num">210</td><td class="num">1.2 %</td></tr>
+                  <tr><td>Coco</td><td class="num">95</td><td class="num">0.6 %</td></tr>
+                  <tr><td>Cáscara</td><td class="num">3 250</td><td class="num">18.9 %</td></tr>
+                  <tr><td>Piedra / merma</td><td class="num">155</td><td class="num">0.9 %</td></tr>
+                  <tr><td><strong>Total</strong></td><td class="num"><strong>17 230</strong></td><td class="num"><strong>100 %</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>Sistema crea 8 Lotes Hijos. Cada uno hereda la composición proporcional del Lote de Proceso.</p>
+
+            <h4 style="margin-top:1rem;">Ejemplo — Lote Hijo LH-001 (Exportable Malla 14+, 10 200 kg)</h4>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Origen</th><th class="num">Proporción</th><th class="num">Kg</th></tr></thead>
+                <tbody>
+                  <tr><td>SC-001</td><td class="num">20.0 %</td><td class="num">2 040</td></tr>
+                  <tr><td>SC-002</td><td class="num">32.0 %</td><td class="num">3 264</td></tr>
+                  <tr><td>SC-003</td><td class="num">48.0 %</td><td class="num">4 896</td></tr>
+                  <tr><td><strong>Total</strong></td><td class="num"><strong>100 %</strong></td><td class="num"><strong>10 200</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.8</div>
+          <div>
+            <div class="ex-kicker">Paso 7 · AFP</div>
+            <h3>Análisis Físico Post-Proceso</h3>
+            <p>El laboratorio toma muestra del exportable resultante y registra:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Lote Hijo</th><th>Defectos en 300 g</th><th>Granulometría</th><th class="num">Humedad</th><th class="num">Densidad</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>LH-001 (Exp. Malla 14+)</td><td>6 prim. / 8 sec.</td><td>92 % Malla 14+</td><td class="num">11.2 %</td><td class="num">720 g/L</td></tr>
+                  <tr><td>LH-002 (Exp. Malla 13)</td><td>9 prim. / 12 sec.</td><td>88 % Malla 13</td><td class="num">11.4 %</td><td class="num">690 g/L</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>Rendimiento real consolidado del lote de proceso: <strong>71.7 %</strong> en exportable (12 350 kg de exportable total / 17 230 kg ingresados), vs. 75.7 % promedio estimado en AFE. La diferencia queda documentada.</p>
+            <p>El analista firma digitalmente el AFP.</p>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.9</div>
+          <div>
+            <div class="ex-kicker">Paso 8 · ASE</div>
+            <h3>Análisis Sensorial / Catación</h3>
+            <p>El laboratorio tosta y cata las muestras de los lotes exportables. Registra:</p>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Lote Hijo</th><th class="num">Puntaje</th><th>Perfil sensorial</th><th>Defectos en taza</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>LH-001 (Exp. Malla 14+)</td>
+                    <td class="num"><strong>84.5</strong> SCA</td>
+                    <td>Acidez cítrica brillante, cuerpo medio, notas de panela y chocolate, dulzor pronunciado, retrogusto largo.</td>
+                    <td>Ninguno</td>
+                  </tr>
+                  <tr>
+                    <td>LH-002 (Exp. Malla 13)</td>
+                    <td class="num"><strong>83.0</strong> SCA</td>
+                    <td>Acidez moderada, cuerpo medio, notas de frutos secos y caramelo.</td>
+                    <td>Ninguno</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>El catador firma digitalmente. Con esto, los Lotes Hijos exportables quedan <strong>listos para liquidación</strong>.</p>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.10</div>
+          <div>
+            <div class="ex-kicker">Paso 9</div>
+            <h3>Liquidación</h3>
+            <p>Con AFE + Proceso + AFP + ASE consolidados, el Jefe de Planta revisa y firma. El sistema genera la <strong>Liquidación LIQ-2026-014</strong>, que ABC descarga en PDF y/o recibe por API:</p>
+
+            <div class="receipt">
+<div class="head">Liquidación LIQ-2026-014</div>
+<b>Cliente:</b> Cooperativa ABC
+<b>OP:</b> OP-2026-014        <b>Lote:</b> LP-2026-001
+<b>Fechas:</b> Recepción 20/05 · Proceso 22/05 · Liquidación 23/05/2026
+
+<b>INGRESO</b>
+  REC-101 (Guía 0001) — 130 sacos / 8 955 kg
+  REC-102 (Guía 0002) — 120 sacos / 8 275 kg
+  TOTAL: 250 sacos / 17 230 kg
+
+<b>ANÁLISIS FÍSICO DE ENTRADA (AFE)</b>
+  Humedad promedio:        11.9 %
+  Rendimiento estimado:    75.7 %
+  Defectos prelim. prom.:  9 / 300 g
+
+<b>COMPOSICIÓN DE ORIGEN (lotes del cliente)</b>
+  SC-001 → 20.0 % (3 445 kg)
+  SC-002 → 32.0 % (5 510 kg)
+  SC-003 → 48.0 % (8 275 kg)
+
+<b>RESULTADOS DEL PROCESO</b>
+  Exportable Malla 14+   10 200 kg   59.2 %
+  Exportable Malla 13     2 150 kg   12.5 %
+  Segunda                   850 kg    4.9 %
+  Escojo                    320 kg    1.9 %
+  Menudo                    210 kg    1.2 %
+  Coco                       95 kg    0.6 %
+  Cáscara                 3 250 kg   18.9 %
+  Piedra / merma            155 kg    0.9 %
+
+  TOTAL EN CAFÉ:         13 825 kg   80.2 %
+  TOTAL GENERAL:         17 230 kg  100.0 %
+
+<b>ANÁLISIS FÍSICO POST-PROCESO (AFP)</b>
+  Rendimiento real exportable: 71.7 %
+  Defectos en 300 g (Malla 14+): 6 prim. / 8 sec.
+  Humedad de salida: 11.2 %
+
+<b>ANÁLISIS SENSORIAL (ASE)</b>
+  LH-001 (Malla 14+): 84.5 pts SCA
+    Perfil: acidez cítrica, cuerpo medio, notas de panela y chocolate.
+  LH-002 (Malla 13):  83.0 pts SCA
+    Perfil: acidez moderada, notas de frutos secos y caramelo.
+
+<b>Firmas digitales:</b> Analista Físico · Catador · Jefe de Planta
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.11</div>
+          <div>
+            <div class="ex-kicker">Paso 10</div>
+            <h3>Despacho</h3>
+            <p>ABC decide recoger los 10 200 kg de Exportable Malla 14+. Emite orden de despacho. Sistema genera:</p>
+
+            <div class="receipt">
+<div class="head">Despacho DES-2026-045</div>
+<b>Cliente:</b> Cooperativa ABC      <b>Fecha:</b> 28/05/2026
+<b>Lote Hijo:</b> LH-001 (Exportable Malla 14+)
+<b>Cantidad:</b> 10 200 kg
+<b>Taza certificada:</b> 84.5 pts SCA
+
+<b>COMPOSICIÓN DE ORIGEN (devuelta al cliente)</b>
+  Proveniente de SC-001:  2 040 kg
+  Proveniente de SC-002:  3 264 kg
+  Proveniente de SC-003:  4 896 kg
+
+<b>Guía de Remisión:</b> GR-WOMG-0234
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-step">
+          <div class="ix">7.12</div>
+          <div>
+            <div class="ex-kicker">Paso 11</div>
+            <h3>Cierre en el ERP del cliente</h3>
+            <p>ABC carga DES-2026-045 en su ERP. Allí, su sistema reconstruye la trazabilidad de origen completa:</p>
+
+            <div class="callout gold">
+              <span class="tag">Trazabilidad</span>
+              <div>
+                <p>El despacho <strong>DES-2026-045</strong> contiene café cuya trazabilidad es:</p>
+                <ul style="margin-bottom:.4rem;">
+                  <li><strong>2 040 kg</strong> de Juan Pérez (finca La Esperanza, parcela 3)</li>
+                  <li><strong>3 264 kg</strong> de María López (finca El Mirador, parcela 1)</li>
+                  <li><strong>4 896 kg</strong> de Pedro Ruiz (finca San Antonio, parcela 2)</li>
+                </ul>
+                <p style="margin:0;">Todos con certificación Orgánica + FT. Taza certificada por WOMG: 84.5 pts SCA.</p>
+              </div>
+            </div>
+
+            <p>WOMG nunca tuvo que saber nada de fincas ni agricultores. Solo arrastró los códigos SC-001 / 002 / 003 a lo largo del servicio y los devolvió en cada documento, acompañados de los resultados de los tres análisis (AFE, AFP, ASE) que avalan la calidad entregada.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         §8 CASOS DE USO
+         ============================================================ -->
+    <section id="s8">
+      <div class="sec-head">
+        <div class="sec-num">08</div>
+        <div>
+          <span class="kicker">Sección ocho</span>
+          <h2>Casos de Uso</h2>
+        </div>
+      </div>
+
+      <div class="use-grid">
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-01</span><span class="uc-actor">Cliente</span></div>
+          <h3>Programar envío de café</h3>
+          <div class="precond"><strong>Precondición.</strong> Cliente registrado, contrato vigente.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Ingresa al portal y selecciona "Nuevo envío".</li>
+            <li>Elige fecha y turno disponibles del calendario.</li>
+            <li>Registra datos del transporte (placa, conductor, RUC).</li>
+            <li>Declara los lotes: código, sacos, kg estimados, certificaciones, tipo de café.</li>
+            <li>Adjunta o referencia la guía de remisión.</li>
+            <li>Envía.</li>
+          </ol>
+          <div class="alts">
+            <h5>Flujos alternativos</h5>
+            <ul style="margin:0; padding-left:1.1rem;">
+              <li><strong>A1:</strong> Sin capacidad → sugerir fechas alternativas.</li>
+              <li><strong>A2:</strong> Certificaciones inconsistentes → alerta de incompatibilidad.</li>
+            </ul>
+          </div>
+          <div class="postcond"><strong>Postcondición.</strong> Reserva creada, capacidad descontada, notificación generada.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-02</span><span class="uc-actor">Operador de Balanza</span></div>
+          <h3>Recepcionar café en planta</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe un envío programado (o walk-in según política).</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Busca el envío por placa o cliente.</li>
+            <li>Confirma datos de transporte y guía de remisión.</li>
+            <li>Ejecuta pesaje (balanza integrada o manual).</li>
+            <li>Por cada lote declarado, captura sacos y kg reales.</li>
+            <li>Sistema genera Recepción (REC-XXX) en estado "Pendiente AFE".</li>
+            <li>Toma de muestra física vinculada a REC-XXX.</li>
+            <li>Imprime ticket de contramuestra y guía de recepción.</li>
+            <li>Notifica al cliente por correo / WSP.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Recepción creada, almacén virtual actualizado, muestra derivada a laboratorio.</div>
+        </article>
+
+        <article class="uc b">
+          <div class="uc-head"><span class="uc-id">CU-02b</span><span class="uc-actor">Analista de Laboratorio</span></div>
+          <h3>Registrar Análisis Físico de Entrada (AFE)</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe una Recepción en estado "Pendiente AFE".</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Accede a la cola de recepciones pendientes de AFE.</li>
+            <li>Por cada lote, registra humedad, rendimiento estimado, granulometría, defectos en 300 g, impurezas, observaciones.</li>
+            <li>Adjunta fotos opcionales.</li>
+            <li>Firma digitalmente.</li>
+          </ol>
+          <div class="alts">
+            <h5>Flujos alternativos</h5>
+            <ul style="margin:0; padding-left:1.1rem;">
+              <li><strong>A1:</strong> Humedad fuera de rango → alerta y decisión del cliente.</li>
+              <li><strong>A2:</strong> Defectos sobre umbral → recepción "Observada".</li>
+            </ul>
+          </div>
+          <div class="postcond"><strong>Postcondición.</strong> Recepción pasa a "En Custodia". Webhook <code>recepcion.analizada</code> si hay API.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-03</span><span class="uc-actor">Cliente</span></div>
+          <h3>Consultar stock en custodia</h3>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Ingresa al portal.</li>
+            <li>Visualiza dashboard con recepciones, lotes, sacos, kg, humedad, rendimiento, ubicación, antigüedad.</li>
+            <li>Filtra por certificación, tipo de café, fechas.</li>
+            <li>Exporta a Excel / PDF.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Cliente con visibilidad total de su stock en custodia.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-04</span><span class="uc-actor">Cliente</span></div>
+          <h3>Emitir Orden de Proceso</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe café en custodia del cliente.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Selecciona "Nueva Orden de Proceso".</li>
+            <li>Selecciona recepciones (puede ser una porción).</li>
+            <li>Sistema valida reglas de agrupación.</li>
+            <li>Define tipo de proceso, taza objetivo, envase, empaque, servicios adicionales.</li>
+            <li>Sistema muestra composición y % por lote del cliente.</li>
+            <li>Firma digitalmente y envía.</li>
+            <li>Planta recibe notificación.</li>
+          </ol>
+          <div class="alts">
+            <h5>Flujos alternativos</h5>
+            <ul style="margin:0; padding-left:1.1rem;">
+              <li><strong>A1:</strong> Reglas violadas → bloqueo y explicación.</li>
+              <li><strong>A2:</strong> Procesar parcialmente → especificar kg / sacos.</li>
+            </ul>
+          </div>
+          <div class="postcond"><strong>Postcondición.</strong> OP creada en estado "Enviada". Lote de Proceso al confirmar.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-05</span><span class="uc-actor">Operador de Planta</span></div>
+          <h3>Ejecutar proceso</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe OP aceptada y Lote de Proceso armado.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Visualiza cola de OPs pendientes.</li>
+            <li>Selecciona OP y registra "inicio de proceso".</li>
+            <li>Al finalizar, captura los pesos resultantes por subproducto.</li>
+            <li>Registra observaciones, fotos opcionales.</li>
+            <li>Confirma fin de proceso.</li>
+            <li>Sistema crea Lotes Hijos y calcula composición por prorrateo.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Stock de productos terminados creado. Pendiente de liquidación.</div>
+        </article>
+
+        <article class="uc b">
+          <div class="uc-head"><span class="uc-id">CU-06a</span><span class="uc-actor">Analista de Laboratorio</span></div>
+          <h3>Registrar Análisis Físico Post-Proceso (AFP)</h3>
+          <div class="precond"><strong>Precondición.</strong> Proceso finalizado con Lotes Hijos exportables.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Accede a la cola de Lotes Hijos pendientes de AFP.</li>
+            <li>Toma muestra física del exportable.</li>
+            <li>Por cada Lote Hijo registra rendimiento real, defectos en 300 g (primarios y secundarios), granulometría, humedad de salida, densidad, color y aspecto.</li>
+            <li>Adjunta fotos opcionales.</li>
+            <li>Firma digitalmente.</li>
+          </ol>
+          <div class="alts">
+            <h5>Flujos alternativos</h5>
+            <ul style="margin:0; padding-left:1.1rem;">
+              <li><strong>A1:</strong> Diferencia significativa con AFE → alerta para Jefe de Planta.</li>
+            </ul>
+          </div>
+          <div class="postcond"><strong>Postcondición.</strong> AFP asociado a los Lotes Hijos. Habilita catación. Webhook <code>analisis.fisico_post</code>.</div>
+        </article>
+
+        <article class="uc c">
+          <div class="uc-head"><span class="uc-id">CU-06b</span><span class="uc-actor">Catador</span></div>
+          <h3>Registrar Análisis Sensorial / Catación (ASE)</h3>
+          <div class="precond"><strong>Precondición.</strong> AFP completado. OP solicitó catación post-proceso.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Prepara las muestras (tostado, molienda, infusión).</li>
+            <li>Por cada Lote Hijo exportable registra puntaje en taza, perfil sensorial (acidez, cuerpo, dulzor, balance, retrogusto, notas) y defectos en taza.</li>
+            <li>Anota recomendación de uso / mercado destino (opcional).</li>
+            <li>Adjunta hoja de catación firmada.</li>
+            <li>Firma digitalmente.</li>
+          </ol>
+          <div class="alts">
+            <h5>Flujos alternativos</h5>
+            <ul style="margin:0; padding-left:1.1rem;">
+              <li><strong>A1:</strong> Taza bajo el objetivo → notifica al cliente antes de liquidar.</li>
+              <li><strong>A2:</strong> Defecto en taza → lote "Observado".</li>
+            </ul>
+          </div>
+          <div class="postcond"><strong>Postcondición.</strong> ASE registrado. Lote Hijo listo para liquidación. Webhook <code>catacion.realizada</code>.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-07</span><span class="uc-actor">Jefe de Planta</span></div>
+          <h3>Generar Liquidación</h3>
+          <div class="precond"><strong>Precondición.</strong> Proceso finalizado; AFP y ASE registrados.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Revisa el consolidado: ingreso, AFE, ejecución, AFP, ASE, composición.</li>
+            <li>Verifica consistencia (rendimientos, balance, firmas previas).</li>
+            <li>Firma digitalmente.</li>
+            <li>Sistema genera Liquidación (PDF).</li>
+            <li>Notifica al cliente y dispara webhook <code>liquidacion.emitida</code>.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Liquidación disponible. Lotes Hijos oficialmente despachables.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-08</span><span class="uc-actor">Cliente</span></div>
+          <h3>Solicitar despacho de producto terminado</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe stock de producto terminado del cliente.</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Selecciona "Nuevo despacho".</li>
+            <li>Elige Lotes Hijos y cantidades.</li>
+            <li>Registra datos del transporte (placa, conductor, destino).</li>
+            <li>Confirma.</li>
+            <li>Planta prepara el picking.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Orden de despacho creada y en cola.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-09</span><span class="uc-actor">Operador de Almacén</span></div>
+          <h3>Ejecutar despacho</h3>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Busca la orden de despacho.</li>
+            <li>Hace picking físico del producto.</li>
+            <li>Pesaje de salida.</li>
+            <li>Sistema emite guía de remisión con composición de origen.</li>
+            <li>Cliente firma recepción.</li>
+            <li>Stock se descuenta.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Despacho cerrado, stock actualizado, documentos emitidos.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-10</span><span class="uc-actor">Cliente / Jefe</span></div>
+          <h3>Consultar trazabilidad de un lote</h3>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Busca un Lote Hijo o un Despacho.</li>
+            <li>Sistema muestra la cadena hacia atrás: Despacho → Lote Hijo → Lote de Proceso → Recepciones → Lotes del cliente.</li>
+            <li>Incluye resultados de análisis en cada hito.</li>
+            <li>Incluye documentos asociados (guías, OP, liquidación).</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Trazabilidad completa visible y exportable.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-11</span><span class="uc-actor">ERP del cliente</span></div>
+          <h3>Integración — cliente registra envío vía API</h3>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>ERP del cliente llama <code>POST /api/envios</code>.</li>
+            <li>WOMG valida y responde con ID del envío y URL del portal.</li>
+            <li>El proceso continúa normal en planta.</li>
+            <li>En cada hito (recepción, liquidación, despacho), WOMG envía webhook.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> ERP del cliente sincronizado en tiempo real con eventos de WOMG.</div>
+        </article>
+
+        <article class="uc">
+          <div class="uc-head"><span class="uc-id">CU-12</span><span class="uc-actor">Cliente</span></div>
+          <h3>Reproceso de subproducto</h3>
+          <div class="precond"><strong>Precondición.</strong> Existe stock reprocesable (ej. Segunda).</div>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Cliente emite OP de tipo "Reproceso".</li>
+            <li>Selecciona los Lotes Hijos a reprocesar.</li>
+            <li>Sistema hereda la composición de origen.</li>
+            <li>Se procesa y se generan nuevos Lotes Hijos con trazabilidad en cascada.</li>
+          </ol>
+          <div class="postcond"><strong>Postcondición.</strong> Nuevos lotes terminados con cadena de trazabilidad preservada.</div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         §9 API
+         ============================================================ -->
+    <section id="s9">
+      <div class="sec-head">
+        <div class="sec-num">09</div>
+        <div>
+          <span class="kicker">Sección nueve</span>
+          <h2>Estrategia de Integración por API</h2>
+        </div>
+      </div>
+
+      <h3 class="sub"><span class="ix">9.1</span> Principios</h3>
+      <div class="principles">
+        <div class="principle"><span class="pname">API-first</span>Todo lo que hace la UI debe poder hacerse por API.</div>
+        <div class="principle"><span class="pname">Estándares abiertos</span>REST + JSON, autenticación OAuth 2.0 / API keys.</div>
+        <div class="principle"><span class="pname">Sin lock-in</span>Ningún ERP tiene privilegios o endpoints exclusivos.</div>
+        <div class="principle"><span class="pname">Webhooks</span>Para notificar eventos sin polling.</div>
+        <div class="principle"><span class="pname">Idempotencia</span>En operaciones críticas. Sin duplicados en reintentos.</div>
+      </div>
+
+      <h3 class="sub"><span class="ix">9.2</span> Endpoints principales <span style="font-family:var(--mono); font-size:.7rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-left:.4rem;">(borrador)</span></h3>
+
+      <div class="table-wrap">
+        <table class="api-table">
+          <thead><tr><th style="width:90px;">Método</th><th>Endpoint</th><th>Propósito</th></tr></thead>
+          <tbody>
+            <tr><td><span class="method POST">POST</span></td><td class="endpoint">/api/envios</td><td>Registrar un envío programado</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/envios/{id}</td><td>Consultar estado de un envío</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/recepciones?cliente=…</td><td>Listar recepciones del cliente</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/recepciones/{id}/afe</td><td>Consultar Análisis Físico de Entrada</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/stock?cliente=…</td><td>Consultar stock en custodia</td></tr>
+            <tr><td><span class="method POST">POST</span></td><td class="endpoint">/api/ordenes-proceso</td><td>Emitir una OP</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/ordenes-proceso/{id}</td><td>Consultar estado</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/lotes-hijos/{id}/afp</td><td>Consultar Análisis Físico Post-Proceso</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/lotes-hijos/{id}/catacion</td><td>Consultar Análisis Sensorial</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/liquidaciones/{id}</td><td>Descargar liquidación (JSON o PDF)</td></tr>
+            <tr><td><span class="method POST">POST</span></td><td class="endpoint">/api/despachos</td><td>Solicitar un despacho</td></tr>
+            <tr><td><span class="method GET">GET</span></td><td class="endpoint">/api/trazabilidad/lote-hijo/{id}</td><td>Trazabilidad completa de un lote terminado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub"><span class="ix">9.3</span> Eventos / Webhooks</h3>
+
+      <div class="webhook-grid">
+        <div class="webhook"><div class="name">recepcion.creada</div><div class="desc">El camión fue pesado e ingresado al sistema.</div></div>
+        <div class="webhook"><div class="name">recepcion.analizada</div><div class="desc">El AFE quedó registrado y firmado.</div></div>
+        <div class="webhook"><div class="name">op.aceptada</div><div class="desc">La planta confirmó la Orden de Proceso.</div></div>
+        <div class="webhook"><div class="name">proceso.iniciado</div><div class="desc">Comenzó la ejecución.</div></div>
+        <div class="webhook"><div class="name">proceso.finalizado</div><div class="desc">Terminó la ejecución; hay Lotes Hijos creados.</div></div>
+        <div class="webhook"><div class="name">analisis.fisico_post</div><div class="desc">AFP registrado para un Lote Hijo.</div></div>
+        <div class="webhook"><div class="name">catacion.realizada</div><div class="desc">ASE registrado para un Lote Hijo.</div></div>
+        <div class="webhook"><div class="name">liquidacion.emitida</div><div class="desc">Liquidación firmada y disponible.</div></div>
+        <div class="webhook"><div class="name">despacho.preparado</div><div class="desc">Picking listo.</div></div>
+        <div class="webhook"><div class="name">despacho.entregado</div><div class="desc">Producto entregado al cliente.</div></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         §10 PREGUNTAS PENDIENTES
+         ============================================================ -->
+    <section id="s10">
+      <div class="sec-head">
+        <div class="sec-num">10</div>
+        <div>
+          <span class="kicker">Sección diez</span>
+          <h2>Preguntas Pendientes para el Cliente</h2>
+        </div>
+      </div>
+
+      <p>Para cerrar el alcance y poder pasar a diseño detallado, conviene aclarar estos puntos con WOMG SAC. Las agrupo por tema.</p>
+
+      <details class="qgroup" open>
+        <summary class="qgroup-head"><span class="ix">10.1</span><h3>Sobre el modelo de Lote y Recepción</h3><span class="count">4 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol>
+            <li><strong>Confirmación del modelo de tres niveles:</strong> ¿Están de acuerdo en distinguir formalmente "Recepción", "Lote de Proceso" y "Lote Hijo"? ¿O prefieren mantener una terminología distinta?</li>
+            <li><strong>Lotes parciales:</strong> ¿Es común que un cliente pida procesar solo parte de una recepción (ej. 60 sacos de 120)? ¿El sistema debe soportar fraccionamiento desde la v1?</li>
+            <li><strong>Mezcla entre clientes:</strong> ¿Hay algún caso donde se mezcle café de <strong>dos clientes distintos</strong> en un mismo lote (ej. blends a pedido)?</li>
+            <li><strong>Mezcla de certificaciones:</strong> Confirmar que orgánico <strong>nunca</strong> se mezcla con convencional. ¿Otras restricciones (FT con no-FT, p.ej.)?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.2</span><h3>Sobre la trazabilidad del cliente</h3><span class="count">3 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="5">
+            <li><strong>Captura del código de lote del cliente:</strong> ¿Cómo prefieren capturarlo?
+              <ul>
+                <li>(A) El cliente lo declara al programar el envío.</li>
+                <li>(B) El operador lo digita al recepcionar (desde el packing list físico).</li>
+                <li>(C) Llega por API desde el ERP del cliente.</li>
+              </ul>
+              ¿Las tres opciones a la vez? ¿Una sola?
+            </li>
+            <li><strong>Clientes sin código de lote propio:</strong> ¿Se permite que WOMG genere un código interno por recepción y se lo asigne?</li>
+            <li><strong>Formato del código:</strong> ¿Hay restricciones (longitud, caracteres) o se acepta cualquier texto libre?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.3</span><h3>Sobre los procesos y subproductos</h3><span class="count">4 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="8">
+            <li><strong>Catálogo de subproductos:</strong> ¿Cuál es la lista oficial? (Exportable con cuántas mallas, Segunda, Escojo, Menudo, Coco, Cáscara, Piedra). ¿Falta alguno?</li>
+            <li><strong>Tipos de proceso:</strong> El Excel menciona G1, G2, G3, Reproceso, Otros. ¿Qué incluye cada uno? ¿Sub-variantes (con/sin separación de mallas, con/sin pulido)?</li>
+            <li><strong>Cáscara y piedra:</strong> ¿El cliente se los lleva o son merma? Si es lo segundo, ¿se gestionan como stock o solo como reporte?</li>
+            <li><strong>Envases y empaques:</strong> ¿Los provee WOMG o el cliente? Si los provee WOMG, ¿se cobran aparte y se gestionan como inventario?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.4</span><h3>Sobre el ingreso y la capacidad</h3><span class="count">5 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="12">
+            <li><strong>Modelo de capacidad de planta:</strong> ¿Por sacos por turno, toneladas por día, m³ de almacén disponible?</li>
+            <li><strong>Capacidad segregada por certificación:</strong> ¿Almacenes físicamente separados (orgánico vs. convencional)? ¿Capacidad por almacén o global?</li>
+            <li><strong>Walk-ins:</strong> ¿Se aceptan camiones sin programación previa? ¿Con qué política?</li>
+            <li><strong>Turnos:</strong> Mañana (8-12) y tarde (2-5/6 pm). ¿Fijo o configurable? ¿Turnos especiales?</li>
+            <li><strong>Balanza:</strong> El ticket es de una balanza con software propio. ¿Se quiere <strong>integrar</strong> o <strong>reemplazar</strong>? ¿Tiene API o salida serial/digital?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.5</span><h3>Sobre la calidad y catación</h3><span class="count">10 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="17">
+            <li><strong>Tres tipos de análisis (AFE, AFP, ASE):</strong> Confirmar que el flujo es:
+              <ul>
+                <li><strong>AFE</strong> → al recepcionar, por cada recepción.</li>
+                <li><strong>AFP</strong> → tras el proceso, por cada lote hijo exportable.</li>
+                <li><strong>ASE</strong> → tras el AFP, por cada lote hijo exportable.</li>
+              </ul>
+              ¿Aplica también ASE para no exportables (segunda)?
+            </li>
+            <li><strong>Obligatoriedad:</strong> ¿AFE en el 100 % de recepciones? ¿AFP en el 100 % de lotes hijos exportables? ¿ASE siempre o solo cuando el cliente lo solicita?</li>
+            <li><strong>Variables capturadas en AFE:</strong> Humedad, rendimiento exportable estimado, granulometría, defectos preliminares en 300 g, % impurezas/cáscara. ¿Algo más?</li>
+            <li><strong>Variables capturadas en AFP:</strong> Rendimiento real, defectos en 300 g (primarios y secundarios), granulometría final, humedad de salida, densidad. ¿Algo más?</li>
+            <li><strong>Variables capturadas en ASE:</strong> Escala (SCA, ICO, propia) y campos. ¿Hoja de catación específica que respetar?</li>
+            <li><strong>Catación múltiple:</strong> ¿Un mismo lote hijo puede tener varias cataciones (preliminar, final, repetida, externa)? ¿Cuál prevalece?</li>
+            <li><strong>Umbrales de alerta:</strong> ¿Qué humedad y rendimiento aceptables? ¿Fuera de rango: rechazo, observación, cobro distinto?</li>
+            <li><strong>Contramuestras:</strong> ¿Cuánto tiempo se custodian? ¿Dónde? ¿Cómo se identifican (etiqueta, QR)?</li>
+            <li><strong>Equipo de laboratorio:</strong> ¿Cuántos analistas físicos? ¿Catador interno o tercerizado? ¿Q-Grader certificado?</li>
+            <li><strong>Liberación a liquidación:</strong> ¿Se puede emitir con AFP listo pero ASE pendiente, o exige los tres cerrados?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.6</span><h3>Sobre roles y usuarios</h3><span class="count">3 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="27">
+            <li><strong>Roles necesarios:</strong> Cliente, Operador de Balanza, Operador de Planta, Analista Físico, Catador, Jefe de Planta, Administrador. ¿Otros? ¿Subdivisiones (Jefe de Almacén ≠ Jefe de Planta)?</li>
+            <li><strong>Multiusuario por cliente:</strong> ¿Un cliente puede tener varios usuarios con distintos permisos (uno consulta, otro firma OPs)?</li>
+            <li><strong>Aprobaciones internas:</strong> ¿Quién firma una OP del lado de WOMG, quién firma una liquidación? ¿Flujo con varios pasos?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.7</span><h3>Sobre el portal del cliente y notificaciones</h3><span class="count">4 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="30">
+            <li><strong>Canales de notificación:</strong> Correo + WhatsApp planteado. ¿Algo más (SMS, push)? ¿Qué eventos son obligatorios?</li>
+            <li><strong>Idioma:</strong> ¿Solo español o también inglés (exportadores)?</li>
+            <li><strong>Móvil:</strong> ¿Responsivo o app dedicada?</li>
+            <li><strong>Firma digital:</strong> ¿Firma simple (clic acepto), firma electrónica con certificado, o firma física en planta?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.8</span><h3>Sobre el despacho</h3><span class="count">3 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="34">
+            <li><strong>Pesaje de salida:</strong> ¿Se vuelve a pesar el camión o se confía en el peso teórico?</li>
+            <li><strong>Documento de salida:</strong> ¿WOMG emite guía propia o solo entrega contra la guía del cliente?</li>
+            <li><strong>Despachos parciales:</strong> ¿Un lote hijo puede despacharse en varios viajes o siempre completo?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.9</span><h3>Sobre la integración API</h3><span class="count">3 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="37">
+            <li><strong>Prioridad de integración:</strong> ¿Algún cliente listo para integrar en la v1, o se construye "a futuro"?</li>
+            <li><strong>Profundidad de integración:</strong> ¿La API debe permitir <strong>escribir</strong> (crear envíos, OPs) o solo <strong>leer</strong>?</li>
+            <li><strong>Webhooks vs. polling:</strong> ¿Los clientes integradores preferirían eventos o consultas bajo demanda?</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="qgroup">
+        <summary class="qgroup-head"><span class="ix">10.10</span><h3>Sobre temas operativos y de cierre</h3><span class="count">4 preguntas</span></summary>
+        <div class="qgroup-body">
+          <ol start="40">
+            <li><strong>Inicio de operaciones:</strong> ¿WOMG opera hoy con otro sistema/Excel? ¿Hay data histórica a migrar?</li>
+            <li><strong>Volumen actual:</strong> ¿Recepciones por día/semana? ¿Clientes activos? ¿Lotes en stock típicamente? (define performance esperada)</li>
+            <li><strong>Plazo objetivo de v1:</strong> ¿Hay fecha tope para tener la v1 productiva?</li>
+            <li><strong>Equipo de implementación de WOMG:</strong> ¿Contrapartes funcional, técnica y QA durante el proyecto?</li>
+          </ol>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- ============================================================
+         ANEXO A
+         ============================================================ -->
+    <section id="anexo">
+      <div class="sec-head">
+        <div class="sec-num" style="font-family:var(--display); font-style:italic;">A</div>
+        <div>
+          <span class="kicker">Anexo</span>
+          <h2>Glosario rápido</h2>
+        </div>
+      </div>
+
+      <dl class="glossary">
+        <div class="gloss"><dt>Recepción</dt><dd>Café ingresado en una sola guía de remisión. Contiene 1 o más ítems (lotes del cliente).</dd></div>
+        <div class="gloss"><dt>Lote del cliente</dt><dd>Identificador opaco que viene del ERP del cliente. WOMG lo arrastra sin interpretar.</dd></div>
+        <div class="gloss"><dt>Lote de Proceso</dt><dd>Agrupación de recepciones que se procesan bajo una misma OP.</dd></div>
+        <div class="gloss"><dt>Lote Hijo</dt><dd>Cada subproducto resultante de un proceso. Hereda composición de origen.</dd></div>
+        <div class="gloss"><dt>Composición de origen</dt><dd>Tabla que indica qué % de un lote (o lote hijo) proviene de cada lote del cliente.</dd></div>
+        <div class="gloss"><dt>Prorrateo de masa</dt><dd>Mecanismo aceptado por la industria para distribuir origen sobre productos mezclados.</dd></div>
+        <div class="gloss"><dt>OP</dt><dd>Orden de Proceso. Documento por el cual el cliente instruye qué y cómo procesar.</dd></div>
+        <div class="gloss"><dt>AFE</dt><dd>Análisis Físico de Entrada. Se hace al ingreso de cada recepción (humedad, rendimiento estimado, granulometría, defectos preliminares).</dd></div>
+        <div class="gloss"><dt>AFP</dt><dd>Análisis Físico Post-Proceso. Se hace al exportable resultante (rendimiento real, defectos en 300 g, granulometría final, humedad de salida, densidad).</dd></div>
+        <div class="gloss"><dt>ASE</dt><dd>Análisis Sensorial / Catación. Se hace al exportable tostado (puntaje en taza, perfil, defectos en taza).</dd></div>
+        <div class="gloss"><dt>Liquidación</dt><dd>Documento de cierre del servicio. Consolida AFE + Proceso + AFP + ASE + composición de origen.</dd></div>
+        <div class="gloss"><dt>Almacén virtual</dt><dd>Vista lógica del stock de cada cliente. El café está físicamente en planta, pero lógicamente "pertenece" al cliente.</dd></div>
+      </dl>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <h4>Trazabilidad operativa, portal de autoservicio y APIs abiertas — para que el café de cada cliente quede en custodia con WOMG, pero su identidad nunca se pierda.</h4>
+  <div class="foot-meta">
+    <div>WOMG SAC · Propuesta v1.0 · Mayo 2026</div>
+    <div>Fin del documento</div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Behavior — TOC scroll-spy, mobile drawer, smooth nav close
+   ============================================================ */
+(function () {
+  const toc       = document.getElementById('toc');
+  const toggle    = document.getElementById('tocToggle');
+  const links     = Array.from(toc.querySelectorAll('a'));
+  const sections  = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+  // Mobile drawer
+  toggle.addEventListener('click', () => {
+    toc.classList.toggle('open');
+  });
+  toc.addEventListener('click', e => {
+    if (e.target.tagName === 'A' && window.innerWidth < 900) toc.classList.remove('open');
+  });
+
+  // Scroll-spy
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        links.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Close drawer on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') toc.classList.remove('open');
+  });
+})();
+</script>
+
+</body>
+</html>
