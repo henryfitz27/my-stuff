@@ -877,6 +877,7 @@ tr:hover td { background: var(--cream); }
 .flow-step.afe::before { border-color: var(--afe); color: var(--afe); background: var(--cream); }
 .flow-step.afp::before { border-color: var(--afp); color: var(--afp); background: var(--cream); }
 .flow-step.ase::before { border-color: var(--ase); color: var(--ase); background: var(--cream); }
+.flow-step.merma::before { border-color: var(--gold); color: var(--gold); background: var(--cream); }
 
 .flow-step h5 {
   font-family: var(--font-display);
@@ -976,7 +977,19 @@ tr:hover td { background: var(--cream); }
 .example-step.is-afe { border-left-color: var(--afe); }
 .example-step.is-afp { border-left-color: var(--afp); }
 .example-step.is-ase { border-left-color: var(--ase); }
+.example-step.is-merma { border-left-color: var(--gold); background: linear-gradient(135deg, var(--paper), #fff8e0); }
 .example-step.is-liq { border-left-color: var(--gold); }
+
+.muted-note {
+  background: var(--cream);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 13px !important;
+  color: var(--ink-mute) !important;
+  margin-top: 12px !important;
+}
+[data-theme="dark"] .muted-note { background: rgba(212, 180, 131, 0.1); }
+[data-theme="dark"] .example-step.is-merma { background: linear-gradient(135deg, var(--bg-elev), rgba(200, 155, 63, 0.1)); }
 
 .example-step-head {
   display: flex;
@@ -1011,6 +1024,7 @@ tr:hover td { background: var(--cream); }
 .is-afe .badge { background: var(--afe); }
 .is-afp .badge { background: var(--afp); }
 .is-ase .badge { background: var(--ase); }
+.is-merma .badge { background: var(--gold); color: var(--ink); }
 .is-liq .badge { background: var(--gold); color: var(--ink); }
 
 .code-block {
@@ -1395,7 +1409,7 @@ footer {
           <li>Portal del Cliente (autoservicio) para programar envíos, emitir OPs, consultar stock y descargar liquidaciones.</li>
           <li>Trazabilidad operativa con preservación del identificador de lote del cliente.</li>
           <li>Módulo de Calidad con AFE, AFP y ASE (catación).</li>
-          <li>Almacén virtual por cliente con kardex por tipo de café y subproducto.</li>
+          <li>Kardex maestro único con vistas filtradas por cliente, tipo de café y subproducto.</li>
           <li>Gestión de capacidad de planta con cronograma de turnos.</li>
           <li>APIs públicas y documentadas para integración con cualquier ERP.</li>
           <li>Notificaciones por correo y WhatsApp en hitos clave.</li>
@@ -1445,7 +1459,7 @@ footer {
       <div class="concept-card">
         <div class="concept-num">4.1.3</div>
         <h4>Lote Hijo</h4>
-        <p>Cada <strong>subproducto</strong> resultante: Exportable, Segunda, MC, Escojo, Menudo, Coco, Cáscara, Piedra. Hereda la composición de origen del Lote de Proceso.</p>
+        <p>Cada <strong>subproducto</strong> resultante: Exportable (incluye M14+ como una familia), MC/Malla 13, Segunda, Escojo, Menudo, Coco. Más Cáscara y Piedra que van a Mermas. Hereda la composición de origen.</p>
       </div>
       <div class="concept-card">
         <div class="concept-num">4.1.4</div>
@@ -1469,9 +1483,10 @@ footer {
         <p>Es un <strong>atributo del lote</strong>, no un lugar. No tiene paredes ni capacidad. Describe en qué fase del servicio está el café.</p>
         <ul>
           <li><strong>En tránsito</strong> — recién llegado, sin sello ni autorización</li>
-          <li><strong>En custodia</strong> — autorizado, esperando OP</li>
+          <li><strong>En custodia</strong> — autorizado con sello asignado, esperando OP</li>
           <li><strong>En proceso</strong> — dentro de la máquina</li>
-          <li><strong>Procesado</strong> — salió como producto terminado</li>
+          <li><strong>Procesado</strong> — salió como producto terminado, liquidación borrador o definitiva</li>
+          <li><strong>Procesado en custodia</strong> — producto terminado esperando despacho</li>
           <li><strong>Despachado</strong> — entregado al cliente</li>
           <li><strong>Transferido</strong> — cambió de dueño dentro de la planta</li>
         </ul>
@@ -1510,11 +1525,19 @@ footer {
     </div>
     <p>Cuando Norbil entra al portal y "ve su almacén", lo que ve es el kardex filtrado por <code>cliente = Norbil</code>. Es una vista, no una entidad. Lo mismo cuando un cliente vende café a otro: son dos asientos en el mismo kardex (uno de salida del cliente A, otro de entrada del cliente B), sin que el café se mueva físicamente.</p>
 
-    <h3>4.5 · Asignación del sello: al pasar a Materia Prima, no antes</h3>
-    <p>Una decisión operativa clave: <strong>el sello (ECB convencional, ORG orgánico, RA Rainforest) NO se asigna al ingreso</strong>. ¿Por qué? Porque hasta que el cliente emite la Orden de Proceso, no se sabe cómo va a destinar ese café.</p>
-    <p>Ejemplo: el cliente puede traer café que va a procesar como orgánico, pero a último momento decidir procesarlo como convencional. Si lo movemos al almacén orgánico al ingreso, después tendríamos que sacarlo y moverlo de nuevo — doble trabajo y riesgo de error en certificación.</p>
-    <p>Por eso, el lote entra "En tránsito" sin sello. Cuando la OP lo autoriza, pasa a <strong>"En custodia"</strong> y se le asigna el sello correspondiente, junto con su ubicación en alguna bodega de Materia Prima.</p>
-    <blockquote class="callout"><strong>WOMG solo controla certificaciones ORG y RA.</strong> El Fair Trade (FT) no se controla en el sistema porque la planta no está certificada FT — ese sello solo certifica al dueño de la mercadería, no a la planta procesadora.</blockquote>
+    <h3>4.5 · Asignación del sello: al pasar a Materia Prima (custodia)</h3>
+    <p>Una decisión operativa clave: <strong>el sello (ECB convencional, ORG orgánico, RA Rainforest) NO se asigna al ingreso del camión</strong>. El lote llega "En tránsito" sin sello. Después del AFE, <strong>el cliente declara explícitamente el sello</strong> y solo entonces el lote pasa a "En custodia" y se ubica en la bodega de Materia Prima correspondiente.</p>
+    <p>¿Por qué declararlo al pasar a custodia y no al recibir el camión? Porque hasta no tener el análisis físico, el cliente no tiene cómo decidir bien. Y porque la planta necesita la declaración del cliente para acomodar el café en la bodega correcta (no se puede mezclar orgánico con convencional físicamente).</p>
+    <p>Si más tarde el cliente cambia de opinión (por ejemplo, decide procesarlo como convencional habiendo declarado orgánico), se hace un <strong>movimiento manual entre bodegas</strong> con bitácora — no se rehace el ingreso.</p>
+    <blockquote class="callout"><strong>WOMG solo controla certificaciones ORG y RA.</strong> El Fair Trade (FT) no se controla en el sistema porque la planta no tiene esa certificación — ese sello solo certifica al dueño de la mercadería, no a la planta procesadora.</blockquote>
+
+    <h4>Caso especial: café verde y certificado</h4>
+    <p>Si el café entra <strong>verde</strong> (ya pilado, comprado a otro molino), no puede certificarse como orgánico salvo que tenga <strong>certificado del molino de origen</strong>. El sistema:</p>
+    <ul>
+      <li>Si el cliente quiere pasar verde como orgánico → <strong>obligatorio adjuntar certificado</strong> (PDF/imagen) al pasar a custodia.</li>
+      <li>Si no hay certificado → solo puede pasar como <strong>convencional</strong>.</li>
+      <li>El café verde no entra a pilonera (ya está pilado). Su procesamiento se llama <strong>reproceso</strong> y solo pasa por zaranda y selección.</li>
+    </ul>
 
     <h3>4.6 · Tipos de café que ingresan</h3>
     <p>El sistema acepta tres formas estándar (todas son "café" para fines operativos): <strong>pergamino, natural, honey</strong>. Adicionalmente puede ingresar <strong>café verde o pilado</strong> con un tratamiento especial documentado, ya que estas formas no son certificables como orgánico por norma.</p>
@@ -1562,19 +1585,43 @@ footer {
     </div>
     <blockquote class="callout">Sin AFE, el café no se libera a custodia. Sin AFP, no se emite Liquidación. La ASE es opcional: se realiza solo cuando la Orden de Proceso lo solicita explícitamente como "catación post-proceso".</blockquote>
 
-    <h3>4.8 · Liquidación en dos pasos</h3>
-    <p>Al terminar el proceso, el sistema emite un <strong>borrador de liquidación</strong> que el cliente recibe y puede observar durante un plazo configurable (típicamente 2 a 3 días). Si el cliente no observa o aprueba explícitamente, la liquidación pasa a <strong>definitiva</strong> y queda firmada. Una vez definitiva, los productos terminados están oficialmente disponibles para despacho.</p>
+    <h3>4.8 · Merma de almacén e Informe de Merma</h3>
+    <p>Un descubrimiento operativo crítico: el café <strong>pierde peso entre el ingreso y el inicio del proceso</strong>. Llega con humedad de 13% y, después de pasar varios días en almacén con el calor de la zona, baja a 12% o menos. Esto representa una merma real (aproximadamente <strong>0.014 kg por saco</strong> según observación de planta) que debe quedar registrada antes de iniciar la línea.</p>
+    <p>El sistema captura un asiento de kardex específico de <strong>merma de almacén</strong> entre el estado "En custodia" y "En proceso", basado en el <strong>nuevo pesaje al pasar a la línea</strong>. La diferencia entre el peso de ingreso y el peso de entrada a línea es la merma.</p>
+    <p>Sobre esta data, el sistema emite un <strong>Informe de Merma</strong> al cliente, que tiene valor tributario: justifica ante SUNAT la diferencia entre el café que el cliente entregó y el que efectivamente entró a procesarse. Es un entregable adicional del servicio.</p>
 
-    <h3>4.9 · Catálogos configurables (no hardcodeados)</h3>
+    <h3>4.9 · Reglas de generación de subproductos</h3>
+    <p>Los Lotes Hijos que salen del proceso <strong>dependen del tipo de proceso y de las especificaciones de la OP</strong>, no son una lista fija. Las reglas operativas son:</p>
+    <ul>
+      <li><strong>Exportable es UNA familia</strong>: incluye Malla 14, 15, 16, 17 y mayores. Sale como un solo Lote Hijo "Exportable", no como uno por malla.</li>
+      <li><strong>Malla 13 (MC) siempre se separa del exportable</strong>, salvo que la OP lo indique explícitamente (caso del exportador que necesita completar contenedor).</li>
+      <li><strong>Si la OP solicita "separación de mallas"</strong>: el exportable se desglosa en sub-lotes hijos por cada malla solicitada (M14, M15, M16, M17+).</li>
+      <li><strong>Si la OP es de reproceso</strong> (café verde o segundas): solo zaranda y selección, sin pilonera. Salidas típicas: Exportable + Descarte, sin segunda.</li>
+      <li><strong>Cáscara y piedra</strong>: van al almacén de Mermas, no se entregan al cliente.</li>
+    </ul>
+    <p>Norma SCAP aplicable: <strong>Grado 1 = 8-15 defectos en 300 g · Grado 2 = 16-25 defectos en 300 g</strong>. El sistema puede clasificar automáticamente el lote terminado según el AFP.</p>
+
+    <h3>4.10 · Liquidación en dos pasos</h3>
+    <p>Al terminar el proceso, el sistema emite un <strong>borrador de liquidación</strong> que el cliente recibe y puede observar durante un plazo configurable (<strong>24 horas por defecto</strong>). Si el cliente no observa o aprueba explícitamente, la liquidación pasa a <strong>definitiva</strong> y queda firmada. Una vez definitiva, los productos terminados están oficialmente disponibles para despacho.</p>
+    <p>Si los productos no se despachan inmediatamente, pasan al estado <strong>"Procesado en custodia"</strong> hasta que el cliente solicite su salida.</p>
+
+    <h3>4.11 · Casos especiales de proceso</h3>
+    <p>Hay dos escenarios operativos comunes que el sistema debe soportar explícitamente:</p>
+    <ul>
+      <li><strong>Mezcla de pergamino + verde en el mismo embarque:</strong> el cliente debe emitir <strong>dos Órdenes de Proceso separadas</strong> (una para cada tipo), porque pasan por líneas distintas (pergamino → pilonera + zaranda; verde → solo zaranda). Cada OP genera su liquidación independiente. Los productos terminados se pueden agrupar en una <strong>Orden de Producto Terminado</strong> para el despacho consolidado.</li>
+      <li><strong>Cambio de sello en stock:</strong> el cliente puede cambiar la condición de su café (ej. de convencional a orgánico) en pergamino sin certificado adicional, asumiendo la responsabilidad. En café verde requiere certificado del molino de origen. El cambio queda registrado con bitácora y documento firmado del cliente.</li>
+    </ul>
+
+    <h3>4.12 · Catálogos configurables (no hardcodeados)</h3>
     <p>Todo lo que puede cambiar con el tiempo se modela como <strong>maestro configurable</strong> que el administrador gestiona. Sin desarrollo: WOMG abre nueva bodega, agrega un tipo de proceso, ajusta horarios, edita el catálogo de envases — todo es configuración.</p>
     <div class="catalogs-grid">
-      <div class="cat-item"><strong>Almacenes físicos</strong><span>cada bodega con su tipo y capacidad</span></div>
-      <div class="cat-item"><strong>Tipos de proceso</strong><span>G1, G2, G3, reproceso, conversión, etc.</span></div>
+      <div class="cat-item"><strong>Almacenes físicos</strong><span>cada bodega con su tipo y capacidad en sacos</span></div>
+      <div class="cat-item"><strong>Tipos de proceso</strong><span>G1, G2, G3, reproceso (verde/segundas)</span></div>
       <div class="cat-item"><strong>Tipos de café</strong><span>pergamino, natural, honey, verde, pilado</span></div>
       <div class="cat-item"><strong>Certificaciones</strong><span>ECB, ORG, RA y futuras</span></div>
       <div class="cat-item"><strong>Tipos de envase</strong><span>yute 69kg, polipropileno, GrainPro, etc.</span></div>
       <div class="cat-item"><strong>Tipos de empaque</strong><span>sacos, BigBag, pallet sellado</span></div>
-      <div class="cat-item"><strong>Catálogo de subproductos</strong><span>exportable por malla, segunda, MC, otros</span></div>
+      <div class="cat-item"><strong>Catálogo de subproductos</strong><span>exportable, MC, segunda, escojo, menudo, coco</span></div>
       <div class="cat-item"><strong>Horarios y turnos</strong><span>recepción y despacho configurables</span></div>
       <div class="cat-item"><strong>Umbrales</strong><span>humedad máxima, plazo de borrador, etc.</span></div>
     </div>
@@ -1583,22 +1630,24 @@ footer {
   <section class="chapter" id="modulos">
     <span class="chapter-number">Capítulo 05</span>
     <h2>Módulos del sistema</h2>
-    <p>El sistema se organiza en doce módulos que cubren todas las áreas funcionales del servicio.</p>
+    <p>El sistema se organiza en quince módulos que cubren todas las áreas funcionales del servicio.</p>
 
     <div class="modules-list">
       <div class="module-item"><div class="module-num">01</div><div class="module-content"><h5>Maestros y Catálogos</h5><p>Clientes (con contrato), usuarios, roles, certificaciones, tipos de proceso, tipos de café, envases, empaques, almacenes físicos, horarios, umbrales — todo configurable.</p></div></div>
-      <div class="module-item"><div class="module-num">02</div><div class="module-content"><h5>Programación de Ingreso</h5><p>Calendario con ventanas horarias configurables, reserva, control de capacidad, alertas, intercambio entre clientes.</p></div></div>
-      <div class="module-item"><div class="module-num">03</div><div class="module-content"><h5>Recepción en Planta</h5><p>Guía, pesaje, creación de Recepción multi-lote en estado <em>En tránsito</em>, toma de muestra para AFE.</p></div></div>
-      <div class="module-item"><div class="module-num">04</div><div class="module-content"><h5>Kardex y Almacenes</h5><p>Kardex maestro único con tres ejes (almacén, cliente, lote). Vistas filtradas por cliente. Movimientos manuales con bitácora.</p></div></div>
-      <div class="module-item"><div class="module-num">05</div><div class="module-content"><h5>Orden de Proceso</h5><p>Portal del cliente para emitir OP, asignación de sello, selección de recepciones, especificaciones, marca de catación opcional.</p></div></div>
-      <div class="module-item"><div class="module-num">06</div><div class="module-content"><h5>Ejecución de Proceso</h5><p>Vista de operador, registro de pesos por subproducto, creación de Lotes Hijos con asignación a almacenes correspondientes.</p></div></div>
-      <div class="module-item"><div class="module-num">07</div><div class="module-content"><h5>Calidad / Laboratorio</h5><p>AFE (obligatorio), AFP (obligatorio), ASE (opcional según OP), gestión de contramuestras.</p></div></div>
-      <div class="module-item"><div class="module-num">08</div><div class="module-content"><h5>Liquidación</h5><p>Borrador (plazo configurable de observación) → Definitiva (firmada). Consolida AFE + Proceso + AFP + ASE + composición.</p></div></div>
-      <div class="module-item"><div class="module-num">09</div><div class="module-content"><h5>Despacho y Transferencias</h5><p>Despacho externo con guía de salida. Transferencia entre clientes con Orden de Despacho interna + Guía SUNAT obligatoria.</p></div></div>
-      <div class="module-item"><div class="module-num">10</div><div class="module-content"><h5>Reproceso</h5><p>OP especial sobre Lotes Hijos existentes (propios o transferidos), con herencia de composición de origen en cascada.</p></div></div>
-      <div class="module-item"><div class="module-num">11</div><div class="module-content"><h5>Trazabilidad y Reportes</h5><p>Vista hacia atrás desde cualquier lote, kardex auditable, reportes operativos.</p></div></div>
-      <div class="module-item"><div class="module-num">12</div><div class="module-content"><h5>Portal del Cliente</h5><p>Interfaz de autoservicio que consume todos los módulos del cliente.</p></div></div>
-      <div class="module-item"><div class="module-num">13</div><div class="module-content"><h5>API Pública</h5><p>Endpoints REST + webhooks para integración con cualquier ERP externo.</p></div></div>
+      <div class="module-item"><div class="module-num">02</div><div class="module-content"><h5>Programación de Ingreso</h5><p>Calendario con ventanas horarias configurables (visibilidad ocupado/libre), reserva, control de capacidad por sacos, mecanismo de intercambio de turnos con código de verificación.</p></div></div>
+      <div class="module-item"><div class="module-num">03</div><div class="module-content"><h5>Recepción en Planta</h5><p>Guía, pesaje (balanza de tonelaje), creación de Recepción multi-lote en estado <em>En tránsito</em>, toma de muestra para AFE.</p></div></div>
+      <div class="module-item"><div class="module-num">04</div><div class="module-content"><h5>Kardex y Almacenes</h5><p>Kardex maestro único con tres ejes (almacén, cliente, lote). Vistas filtradas por cliente. Movimientos manuales con bitácora y validaciones de certificación.</p></div></div>
+      <div class="module-item"><div class="module-num">05</div><div class="module-content"><h5>Orden de Proceso</h5><p>Portal del cliente para emitir OP descontando <strong>sacos por recepción</strong>. Soporta proceso normal y reproceso (verde / segundas), separación de mallas opcional.</p></div></div>
+      <div class="module-item"><div class="module-num">06</div><div class="module-content"><h5>Merma de Almacén</h5><p>Pesaje al pasar a la línea, registro automático de la merma respecto al ingreso, emisión del <strong>Informe de Merma</strong> con valor tributario para el cliente.</p></div></div>
+      <div class="module-item"><div class="module-num">07</div><div class="module-content"><h5>Ejecución de Proceso</h5><p>Vista de operador, registro de pesos por subproducto. <strong>Exportable como una sola familia M14+</strong> (con separación fina opcional según OP); MC/M13 separada por defecto.</p></div></div>
+      <div class="module-item"><div class="module-num">08</div><div class="module-content"><h5>Calidad / Laboratorio</h5><p>AFE (obligatorio), AFP (obligatorio, con clasificación SCAP grado 1/2), ASE (opcional según OP), gestión de contramuestras.</p></div></div>
+      <div class="module-item"><div class="module-num">09</div><div class="module-content"><h5>Liquidación</h5><p>Borrador (24h configurables de plazo) → Definitiva (firmada). Consolida AFE + Merma + Proceso + AFP + ASE + composición de origen.</p></div></div>
+      <div class="module-item"><div class="module-num">10</div><div class="module-content"><h5>Empaque y Despacho</h5><p>Empaque según especificación de OP, pesaje de salida, guía de remisión. Producto que no se despacha pasa a "Procesado en custodia".</p></div></div>
+      <div class="module-item"><div class="module-num">11</div><div class="module-content"><h5>Transferencias entre clientes</h5><p>Orden de Despacho interna del vendedor + Guía de Remisión SUNAT del comprador. Solo aplica a materia prima y producto terminado (no en proceso).</p></div></div>
+      <div class="module-item"><div class="module-num">12</div><div class="module-content"><h5>Reproceso</h5><p>OP especial sobre Lotes Hijos existentes (propios o transferidos), o sobre café verde que entra directamente. Pasa solo por zaranda, no por pilonera.</p></div></div>
+      <div class="module-item"><div class="module-num">13</div><div class="module-content"><h5>Trazabilidad y Reportes</h5><p>Vista hacia atrás desde cualquier lote, kardex auditable, <strong>Inventario de Masas para certificadoras</strong> (ORG / RA), reportes operativos.</p></div></div>
+      <div class="module-item"><div class="module-num">14</div><div class="module-content"><h5>Portal del Cliente</h5><p>Interfaz de autoservicio que consume todos los módulos del cliente.</p></div></div>
+      <div class="module-item"><div class="module-num">15</div><div class="module-content"><h5>API Pública</h5><p>Endpoints REST + webhooks para integración con cualquier ERP externo.</p></div></div>
     </div>
   </section>
 
@@ -1618,16 +1667,17 @@ footer {
         <h4>Cliente sin ERP — operación 100% por portal web</h4>
         <div class="flow">
           <div class="flow-step" data-step="1"><h5>Cliente programa el envío</h5><p>Desde el portal, selecciona fecha y ventana horaria (configurable, por defecto 7:00-16:30), declara los lotes que enviará y los datos de transporte. Puede declarar opcionalmente sus códigos de lote internos.</p></div>
-          <div class="flow-step" data-step="2"><h5>Camión llega y se recepciona</h5><p>Operador registra guía, ejecuta pesaje, captura ítems. Se crea la Recepción y los lotes entran al kardex en estado <em>En tránsito</em>, <strong>sin sello asignado todavía</strong>.</p></div>
-          <div class="flow-step afe" data-step="3"><h5>Análisis Físico de Entrada <span class="tag">AFE</span></h5><p>Laboratorio registra humedad (debe ser ≤ 13%), rendimiento estimado, granulometría, defectos. Una vez firmado, los lotes pasan a estado <em>En Custodia</em>.</p></div>
-          <div class="flow-step" data-step="4"><h5>Asignación de sello al recibir la OP</h5><p>Cuando el cliente emite la Orden de Proceso, recién se asigna el sello (ECB / ORG / RA) y el lote se ubica en la bodega de Materia Prima correspondiente. Si el cliente no ha asignado sello, sistema notifica para confirmación.</p></div>
-          <div class="flow-step" data-step="5"><h5>Cliente emite Orden de Proceso</h5><p>Selecciona recepciones (o porciones), define tipo de proceso (G1/G2/G3/Reproceso), envase, empaque, marca si quiere catación post-proceso. Sistema valida reglas de agrupación.</p></div>
-          <div class="flow-step" data-step="6"><h5>Operador ejecuta el proceso</h5><p>Registra inicio/fin, captura pesos por subproducto. Sistema crea los Lotes Hijos en sus respectivos almacenes (PT, Subproductos, Mermas) y calcula composición de origen.</p></div>
-          <div class="flow-step afp" data-step="7"><h5>Análisis Físico Post-Proceso <span class="tag">AFP</span></h5><p>Laboratorio mide rendimiento real, defectos en 300 g, granulometría final, humedad de salida, densidad sobre el exportable. <strong>Obligatorio</strong>.</p></div>
-          <div class="flow-step ase" data-step="8"><h5>Análisis Sensorial · solo si la OP lo solicita <span class="tag">ASE</span></h5><p>Si la OP marcó "catación post-proceso", el catador registra puntaje en taza, perfil sensorial y defectos en taza. Si no, este paso se omite.</p></div>
-          <div class="flow-step" data-step="9"><h5>Liquidación borrador</h5><p>Sistema genera <strong>borrador de liquidación</strong> con todos los datos. Se notifica al cliente, que dispone de 2-3 días (configurable) para observar.</p></div>
-          <div class="flow-step" data-step="10"><h5>Liquidación definitiva</h5><p>Si el cliente no observa en el plazo, o aprueba explícitamente, la liquidación se cierra y se firma. Los Lotes Hijos quedan disponibles para despacho.</p></div>
-          <div class="flow-step" data-step="11"><h5>Despacho del producto</h5><p>Cliente solicita despacho en ventana horaria (configurable, por defecto 9:00-16:30). Picking, pesaje de salida, guía de remisión con composición, descuento de kardex.</p></div>
+          <div class="flow-step" data-step="2"><h5>Camión llega y se recepciona</h5><p>Operador registra guía, ejecuta pesaje (balanza de tonelaje: descarga el café, sube vacío para tara, diferencia es el peso). Captura ítems. La Recepción se crea con los lotes en estado <em>En tránsito</em>, <strong>sin sello asignado todavía</strong>.</p></div>
+          <div class="flow-step afe" data-step="3"><h5>Análisis Físico de Entrada <span class="tag">AFE</span></h5><p>Laboratorio toma muestra representativa (1-2 kg de un mezclado de todos los sacos de la recepción). Registra humedad (≤ 13%), rendimiento estimado, granulometría, defectos. Firma. <strong>Sin AFE, el café no avanza.</strong></p></div>
+          <div class="flow-step" data-step="4"><h5>Cliente declara sello y pasa a custodia</h5><p>El cliente declara si el café es <strong>orgánico (ORG)</strong>, <strong>Rainforest (RA)</strong> o <strong>convencional (ECB)</strong>. El lote pasa a estado <em>En custodia</em> y se ubica en la bodega de Materia Prima correspondiente al sello.</p><p>Caso especial: si el café es <strong>verde</strong> y se quiere pasar como orgánico, el cliente debe adjuntar el certificado de origen del molino anterior. Sin certificado, solo puede pasar como convencional.</p></div>
+          <div class="flow-step" data-step="5"><h5>Cliente emite Orden de Proceso</h5><p>Selecciona <strong>sacos específicos por recepción</strong> (ej. 100 sacos de la guía 20 + 30 sacos de la guía 40 + 20 sacos de la guía 7). Define tipo de proceso (G1/G2/G3 limpieza, reproceso para verde/segundas), envase, empaque, marca si quiere catación. Sistema valida certificaciones compatibles.</p></div>
+          <div class="flow-step merma" data-step="6"><h5>Merma de almacén al pasar a la línea</h5><p>Antes de iniciar el proceso, se pesa la cantidad real que entra a la línea. La diferencia con el peso de ingreso es la <strong>merma de almacén</strong> (por pérdida de humedad durante la custodia). Esta merma queda registrada y genera un <em>Informe de Merma</em> con valor tributario para el cliente.</p></div>
+          <div class="flow-step" data-step="7"><h5>Operador ejecuta el proceso</h5><p>Registra inicio/fin, captura pesos por subproducto. Sistema crea los Lotes Hijos: <strong>Exportable</strong> (incluye M14 y mallas mayores como una sola familia), <strong>MC/Malla 13</strong> separada (salvo que la OP indique lo contrario), <strong>Segunda</strong>, <strong>Escojo</strong>, <strong>Menudo</strong>, <strong>Coco</strong>, y a Mermas: <strong>Cáscara</strong>, <strong>Piedra</strong>.</p></div>
+          <div class="flow-step afp" data-step="8"><h5>Análisis Físico Post-Proceso <span class="tag">AFP</span></h5><p>Laboratorio mide rendimiento real, defectos en 300 g, granulometría final, humedad de salida, densidad sobre el exportable. <strong>Obligatorio</strong>. Aplica norma SCAP (grado 1: 8-15 defectos; grado 2: 16-25).</p></div>
+          <div class="flow-step ase" data-step="9"><h5>Análisis Sensorial · solo si la OP lo solicita <span class="tag">ASE</span></h5><p>Si la OP marcó "catación post-proceso", el catador registra puntaje en taza, perfil sensorial y defectos en taza. Si no, se omite.</p></div>
+          <div class="flow-step" data-step="10"><h5>Liquidación borrador</h5><p>Sistema genera <strong>borrador de liquidación</strong>. Cliente dispone de <strong>24 horas</strong> (configurable) para observar o aprobar.</p></div>
+          <div class="flow-step" data-step="11"><h5>Liquidación definitiva</h5><p>Si el cliente no observa en el plazo, la liquidación se cierra automáticamente. Los Lotes Hijos quedan disponibles para despacho o pasan a estado <em>Procesado en custodia</em> si no se despachan inmediatamente.</p></div>
+          <div class="flow-step" data-step="12"><h5>Empaque y despacho</h5><p>Cliente solicita despacho en ventana horaria (configurable, por defecto 9:00-16:30). Operador hace picking, <strong>empaca según especificaciones de la OP</strong> (sacos, envases, etiquetas), realiza pesaje de salida y emite guía de remisión con composición de origen. Kardex descontado.</p></div>
         </div>
       </div>
 
@@ -1886,113 +1936,134 @@ footer {
         <h4>Análisis Físico de Entrada</h4>
         <span class="badge">AFE</span>
       </div>
-      <p>El laboratorio toma muestra representativa de cada recepción al pie de balanza y registra:</p>
+      <p>El laboratorio toma <strong>una muestra por Recepción</strong> (no por lote del cliente). El procedimiento real: se "plumea" todos los sacos de la recepción, se mezcla en un balde, se revuelve en cruz y se saca aprox. <strong>1-2 kg</strong> de muestra representativa. Resultados registrados:</p>
       <div class="table-wrap">
       <table>
-        <thead><tr><th>Recepción</th><th>Lote cliente</th><th>Humedad</th><th>Rendimiento estim.</th><th>Granulometría</th><th>Defectos prelim.</th><th>Impurezas</th></tr></thead>
+        <thead><tr><th>Recepción</th><th>Total sacos</th><th>Humedad</th><th>Rendim. estim.</th><th>Granulometría</th><th>Defectos prelim.</th><th>Impurezas</th></tr></thead>
         <tbody>
-          <tr><td>REC-101</td><td>SC-001</td><td>11.8%</td><td>76%</td><td>Malla 14+ predomina</td><td>8 / 300 g</td><td>1.2%</td></tr>
-          <tr><td>REC-101</td><td>SC-002</td><td>12.0%</td><td>75%</td><td>Malla 14+ predomina</td><td>10 / 300 g</td><td>1.5%</td></tr>
-          <tr><td>REC-102</td><td>SC-003</td><td>11.9%</td><td>76%</td><td>Malla 14+ predomina</td><td>9 / 300 g</td><td>1.3%</td></tr>
+          <tr><td>REC-101</td><td>130</td><td>11.9%</td><td>76%</td><td>Malla 14+ predomina</td><td>9 / 300 g</td><td>1.4%</td></tr>
+          <tr><td>REC-102</td><td>120</td><td>11.9%</td><td>76%</td><td>Malla 14+ predomina</td><td>9 / 300 g</td><td>1.3%</td></tr>
         </tbody>
       </table>
       </div>
-      <p>El analista firma digitalmente. Las recepciones pasan a estado <strong>En Custodia</strong>. La contramuestra queda etiquetada y guardada.</p>
+      <p>El analista firma digitalmente. <strong>El cliente declara el sello (ORG) y las recepciones pasan a estado "En Custodia"</strong>, ubicadas en Bodega A (Materia Prima · Orgánico). La contramuestra queda etiquetada y guardada.</p>
     </div>
 
     <div class="example-step">
       <div class="example-step-head">
         <span class="example-step-num">Paso 04</span>
-        <h4>Almacén virtual del cliente</h4>
+        <h4>Stock del cliente en kardex</h4>
       </div>
 <div class="code-block">Stock de café en custodia — Cliente ABC
 ─────────────────────────────────────────────────────
-Recepción REC-101 (Guía 0001) — 20/05/2026
-  ├─ SC-001  50 sacos   3,445 kg   H: 11.8%  Rdmto: 76%   Ubic. A-1
-  └─ SC-002  80 sacos   5,510 kg   H: 12.0%  Rdmto: 75%   Ubic. A-1
+Recepción REC-101 (Guía 0001) — 20/05/2026  ·  Sello: ORG
+  ├─ SC-001  50 sacos   3,445 kg   H: 11.9%  Rdmto: 76%   Bodega A
+  └─ SC-002  80 sacos   5,510 kg   H: 11.9%  Rdmto: 76%   Bodega A
 
-Recepción REC-102 (Guía 0002) — 20/05/2026
-  └─ SC-003  120 sacos  8,275 kg   H: 11.9%  Rdmto: 76%   Ubic. A-2
+Recepción REC-102 (Guía 0002) — 20/05/2026  ·  Sello: ORG
+  └─ SC-003  120 sacos  8,275 kg   H: 11.9%  Rdmto: 76%   Bodega A
 
-TOTAL: 250 sacos / 17,230 kg</div>
+TOTAL: 250 sacos / 17,230 kg  ·  todo en Bodega A (Materia Prima · ORG)</div>
     </div>
 
     <div class="example-step">
       <div class="example-step-head">
         <span class="example-step-num">Paso 05</span>
-        <h4>Orden de Proceso</h4>
+        <h4>Orden de Proceso · descontando por sacos</h4>
       </div>
-      <p>ABC emite <strong>OP-2026-014</strong> procesando los tres lotes juntos: tipo G1 con separación de mallas, taza objetivo 84+, envase Yute + GrainPro. Sistema valida (mismo cliente ✓, mismas certificaciones ✓, mismo tipo ✓, AFE realizado ✓) y crea el <strong>Lote de Proceso LP-2026-001</strong>:</p>
+      <p>ABC emite <strong>OP-2026-014</strong>. En lugar de tomar las recepciones completas, especifica <strong>cuántos sacos toma de cada recepción</strong>:</p>
       <div class="table-wrap">
       <table>
-        <thead><tr><th>Origen</th><th>Kg</th><th>Composición</th></tr></thead>
+        <thead><tr><th>Recepción</th><th>Lote cliente</th><th>Sacos solicitados</th><th>Kg estim.</th><th>Composición LP</th></tr></thead>
         <tbody>
-          <tr><td>SC-001</td><td>3,445</td><td>20.0%</td></tr>
-          <tr><td>SC-002</td><td>5,510</td><td>32.0%</td></tr>
-          <tr><td>SC-003</td><td>8,275</td><td>48.0%</td></tr>
-          <tr><td><strong>Total</strong></td><td><strong>17,230</strong></td><td><strong>100%</strong></td></tr>
+          <tr><td>REC-101</td><td>SC-001</td><td>50 de 50</td><td>3,445</td><td>20.0%</td></tr>
+          <tr><td>REC-101</td><td>SC-002</td><td>80 de 80</td><td>5,510</td><td>32.0%</td></tr>
+          <tr><td>REC-102</td><td>SC-003</td><td>120 de 120</td><td>8,275</td><td>48.0%</td></tr>
+          <tr><td colspan="2"><strong>Total Lote de Proceso LP-2026-001</strong></td><td><strong>250 sacos</strong></td><td><strong>17,230</strong></td><td><strong>100%</strong></td></tr>
         </tbody>
       </table>
       </div>
+      <p>Tipo de proceso: G1 estándar (sin separación fina de mallas). Taza objetivo: 84+. Envase: Yute + GrainPro. <strong>Sistema valida</strong> certificaciones compatibles ✓, mismo tipo de café ✓, AFE realizado ✓.</p>
+      <p class="muted-note"><em>Nota: en otro escenario el cliente podría haber pedido sólo 30 sacos del lote SC-001 + 50 del SC-003 + 20 sacos de otra recepción de hace 3 semanas. El sistema permite cualquier combinación por sacos y descuenta del stock conforme se aprueba la OP.</em></p>
+    </div>
+
+    <div class="example-step is-merma">
+      <div class="example-step-head">
+        <span class="example-step-num">Paso 06</span>
+        <h4>Merma de almacén al pasar a la línea</h4>
+        <span class="badge">MERMA</span>
+      </div>
+      <p>Antes de que la OP entre a línea, se pesa nuevamente el café para registrar la merma sufrida durante los 2 días en custodia (del 20-mayo al 22-mayo).</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Concepto</th><th>Peso (kg)</th></tr></thead>
+        <tbody>
+          <tr><td>Peso de ingreso a planta</td><td>17,230.00</td></tr>
+          <tr><td>Peso al pasar a línea (22-mayo)</td><td>17,226.50</td></tr>
+          <tr><td><strong>Merma de almacén</strong></td><td><strong>3.50</strong></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Se genera asiento de kardex específico de merma. El sistema produce un <strong>Informe de Merma</strong> que el cliente recibe (valor tributario para justificar la diferencia ante SUNAT).</p>
     </div>
 
     <div class="example-step">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 06</span>
+        <span class="example-step-num">Paso 07</span>
         <h4>Ejecución del proceso</h4>
       </div>
-      <p>El operador inicia el proceso el 22-mayo a las 8:00 y termina a las 14:30. Captura pesos por subproducto:</p>
+      <p>El operador inicia el proceso el 22-mayo a las 8:00 y termina a las 14:30. Captura pesos por subproducto. <strong>Como la OP no pidió separación fina de mallas, el exportable sale como una sola familia (M14+) y la M13 se separa como MC:</strong></p>
       <div class="table-wrap">
       <table>
-        <thead><tr><th>Subproducto</th><th>Kg</th><th>% del total</th></tr></thead>
+        <thead><tr><th>Subproducto</th><th>Lote Hijo</th><th>Kg</th><th>% del total</th><th>Almacén destino</th></tr></thead>
         <tbody>
-          <tr><td>Exportable Malla 14+</td><td>10,200</td><td>59.2%</td></tr>
-          <tr><td>Exportable Malla 13</td><td>2,150</td><td>12.5%</td></tr>
-          <tr><td>Segunda</td><td>850</td><td>4.9%</td></tr>
-          <tr><td>Escojo</td><td>320</td><td>1.9%</td></tr>
-          <tr><td>Menudo</td><td>210</td><td>1.2%</td></tr>
-          <tr><td>Coco</td><td>95</td><td>0.6%</td></tr>
-          <tr><td>Cáscara</td><td>3,250</td><td>18.9%</td></tr>
-          <tr><td>Piedra / merma</td><td>155</td><td>0.9%</td></tr>
-          <tr><td><strong>Total</strong></td><td><strong>17,230</strong></td><td><strong>100%</strong></td></tr>
+          <tr><td><strong>Exportable</strong> (M14+)</td><td>LH-001</td><td>12,350</td><td>71.7%</td><td>Bodega B (PT · ORG)</td></tr>
+          <tr><td>MC / Malla 13</td><td>LH-002</td><td>850</td><td>4.9%</td><td>Bodega C (SUB · ORG)</td></tr>
+          <tr><td>Segunda</td><td>LH-003</td><td>320</td><td>1.9%</td><td>Bodega C (SUB · ORG)</td></tr>
+          <tr><td>Escojo</td><td>LH-004</td><td>210</td><td>1.2%</td><td>Bodega C (SUB · ORG)</td></tr>
+          <tr><td>Menudo</td><td>LH-005</td><td>95</td><td>0.6%</td><td>Bodega C (SUB · ORG)</td></tr>
+          <tr><td>Coco</td><td>LH-006</td><td>—</td><td>—</td><td>Bodega C (SUB · ORG)</td></tr>
+          <tr><td>Cáscara</td><td>LH-007</td><td>3,250</td><td>18.9%</td><td>Patio (MERMA · NO se entrega)</td></tr>
+          <tr><td>Piedra / merma</td><td>LH-008</td><td>151.5</td><td>0.9%</td><td>Patio (MERMA · NO se entrega)</td></tr>
+          <tr><td><strong>Total</strong></td><td>—</td><td><strong>17,226.5</strong></td><td><strong>100%</strong></td><td>—</td></tr>
         </tbody>
       </table>
       </div>
-      <p>Sistema crea 8 Lotes Hijos. Por ejemplo el <strong>LH-001 (Exportable Malla 14+, 10,200 kg)</strong> hereda la composición: 2,040 kg de SC-001 + 3,264 kg de SC-002 + 4,896 kg de SC-003.</p>
+      <p>Sistema crea los Lotes Hijos. <strong>LH-001 (Exportable) hereda la composición</strong>: 20% SC-001 + 32% SC-002 + 48% SC-003. <strong>Cáscara y piedra (LH-007, LH-008) van a Mermas y no se entregan al cliente.</strong></p>
     </div>
 
     <div class="example-step is-afp">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 07</span>
+        <span class="example-step-num">Paso 08</span>
         <h4>Análisis Físico Post-Proceso</h4>
         <span class="badge">AFP</span>
       </div>
-      <p>El laboratorio toma muestra del exportable y registra:</p>
+      <p>El laboratorio toma muestra de los Lotes Hijos exportables y registra:</p>
       <div class="table-wrap">
       <table>
-        <thead><tr><th>Lote Hijo</th><th>Defectos en 300 g</th><th>Granulometría</th><th>Humedad salida</th><th>Densidad</th></tr></thead>
+        <thead><tr><th>Lote Hijo</th><th>Defectos en 300 g</th><th>Granulometría</th><th>Humedad salida</th><th>Densidad</th><th>Grado SCAP</th></tr></thead>
         <tbody>
-          <tr><td>LH-001 (Malla 14+)</td><td>6 prim. / 8 sec.</td><td>92% Malla 14+</td><td>11.2%</td><td>720 g/L</td></tr>
-          <tr><td>LH-002 (Malla 13)</td><td>9 prim. / 12 sec.</td><td>88% Malla 13</td><td>11.4%</td><td>690 g/L</td></tr>
+          <tr><td>LH-001 (Exportable M14+)</td><td>6 prim. / 8 sec. = <strong>14</strong></td><td>92% Malla 14+</td><td>11.2%</td><td>720 g/L</td><td><strong>Grado 1</strong> (8-15)</td></tr>
+          <tr><td>LH-002 (MC / Malla 13)</td><td>9 prim. / 12 sec. = <strong>21</strong></td><td>88% Malla 13</td><td>11.4%</td><td>690 g/L</td><td>Grado 2 (16-25)</td></tr>
         </tbody>
       </table>
       </div>
-      <p>Rendimiento real consolidado: <strong>71.7%</strong> en exportable (vs. 75.7% estimado en AFE). La diferencia queda documentada. El analista firma.</p>
+      <p>El LH-001 califica como Grado 1 (apto para exportación). La diferencia entre rendimiento real (71.7%) y estimado en AFE (76%) queda documentada. El analista firma.</p>
     </div>
 
     <div class="example-step is-ase">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 08</span>
+        <span class="example-step-num">Paso 09</span>
         <h4>Análisis Sensorial / Catación</h4>
         <span class="badge">ASE</span>
       </div>
-      <p>El catador prepara las muestras (tostado, molienda, infusión) y registra:</p>
+      <p>La OP de ABC pidió catación post-proceso. El catador prepara las muestras (tostado, molienda, infusión) y registra:</p>
       <div class="table-wrap">
       <table>
         <thead><tr><th>Lote Hijo</th><th>Puntaje</th><th>Perfil sensorial</th><th>Defectos en taza</th></tr></thead>
         <tbody>
-          <tr><td>LH-001 (Malla 14+)</td><td><strong>84.5</strong> SCA</td><td>Acidez cítrica brillante, cuerpo medio, notas de panela y chocolate, dulzor pronunciado, retrogusto largo.</td><td>Ninguno</td></tr>
-          <tr><td>LH-002 (Malla 13)</td><td><strong>83.0</strong> SCA</td><td>Acidez moderada, cuerpo medio, notas de frutos secos y caramelo.</td><td>Ninguno</td></tr>
+          <tr><td>LH-001 (Exportable M14+)</td><td><strong>84.5</strong> SCA</td><td>Acidez cítrica brillante, cuerpo medio, notas de panela y chocolate, dulzor pronunciado, retrogusto largo.</td><td>Ninguno</td></tr>
+          <tr><td>LH-002 (MC)</td><td><strong>83.0</strong> SCA</td><td>Acidez moderada, cuerpo medio, notas de frutos secos y caramelo.</td><td>Ninguno</td></tr>
         </tbody>
       </table>
       </div>
@@ -2001,25 +2072,30 @@ TOTAL: 250 sacos / 17,230 kg</div>
 
     <div class="example-step is-liq">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 09</span>
-        <h4>Liquidación emitida</h4>
+        <span class="example-step-num">Paso 10</span>
+        <h4>Liquidación borrador</h4>
         <span class="badge">LIQ</span>
       </div>
-      <p>Con AFE + Proceso + AFP + ASE consolidados, el Jefe de Planta revisa y firma. El sistema genera <strong>LIQ-2026-014</strong>:</p>
-<div class="code-block">LIQUIDACIÓN LIQ-2026-014
-Cliente: Cooperativa ABC
+      <p>Con AFE + Merma + Proceso + AFP + ASE consolidados, el sistema genera el <strong>borrador de LIQ-2026-014</strong> y lo envía al cliente. ABC dispone de <strong>24 horas</strong> para observar:</p>
+<div class="code-block">LIQUIDACIÓN LIQ-2026-014  (BORRADOR · vence 24/05/2026 14:30)
+Cliente: Cooperativa ABC          Sello: ORG
 OP: OP-2026-014        Lote: LP-2026-001
 Fechas: Recepción 20/05 | Proceso 22/05 | Liquidación 23/05/2026
 
 INGRESO
   REC-101 (Guía 0001) — 130 sacos / 8,955 kg
   REC-102 (Guía 0002) — 120 sacos / 8,275 kg
-  TOTAL: 250 sacos / 17,230 kg
+  TOTAL INGRESADO: 250 sacos / 17,230.00 kg
 
 AFE — Análisis Físico de Entrada
   Humedad promedio:        11.9%
-  Rendimiento estimado:    75.7%
+  Rendimiento estimado:    76.0%
   Defectos prelim. prom.:  9 / 300 g
+
+MERMA DE ALMACÉN
+  Peso de ingreso:         17,230.00 kg
+  Peso al pasar a línea:   17,226.50 kg
+  Merma:                        3.50 kg  (Informe disponible)
 
 COMPOSICIÓN DE ORIGEN (lotes del cliente)
   SC-001 → 20.0% (3,445 kg)
@@ -2027,52 +2103,60 @@ COMPOSICIÓN DE ORIGEN (lotes del cliente)
   SC-003 → 48.0% (8,275 kg)
 
 RESULTADOS DEL PROCESO
-  Exportable Malla 14+   10,200 kg   59.2%
-  Exportable Malla 13     2,150 kg   12.5%
-  Segunda                   850 kg    4.9%
-  Escojo                    320 kg    1.9%
-  Menudo                    210 kg    1.2%
-  Coco                       95 kg    0.6%
-  Cáscara                 3,250 kg   18.9%
-  Piedra / merma            155 kg    0.9%
+  Exportable (M14+)      12,350.0 kg   71.7%   [se entrega]
+  MC / Malla 13             850.0 kg    4.9%   [se entrega]
+  Segunda                   320.0 kg    1.9%   [se entrega]
+  Escojo                    210.0 kg    1.2%   [se entrega]
+  Menudo                     95.0 kg    0.6%   [se entrega]
+  Coco                        —          —     [se entrega]
+  Cáscara                 3,250.0 kg   18.9%   [no se entrega]
+  Piedra / merma            151.5 kg    0.9%   [no se entrega]
 
 AFP — Análisis Físico Post-Proceso
-  Rendimiento real exportable:  71.7%
-  Defectos LH-001 (300 g):      6 prim. / 8 sec.
-  Humedad de salida:            11.2%
+  LH-001 (Exportable): 14 defectos · Grado 1 SCAP · H 11.2%
+  LH-002 (MC):          21 defectos · Grado 2 SCAP · H 11.4%
 
-ASE — Análisis Sensorial
-  LH-001 (Malla 14+): 84.5 pts SCA
-    Acidez cítrica, cuerpo medio, panela y chocolate.
-  LH-002 (Malla 13):  83.0 pts SCA
-    Acidez moderada, frutos secos y caramelo.
+ASE — Análisis Sensorial (catación solicitada en OP)
+  LH-001 (Exportable): 84.5 pts SCA · acidez cítrica, panela, chocolate
+  LH-002 (MC):         83.0 pts SCA · acidez moderada, frutos secos
 
 Firmas digitales: Analista Físico · Catador · Jefe de Planta</div>
     </div>
 
-    <div class="example-step">
+    <div class="example-step is-liq">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 10</span>
-        <h4>Despacho del producto terminado</h4>
+        <span class="example-step-num">Paso 11</span>
+        <h4>Liquidación definitiva (auto-aprobación a las 24h)</h4>
+        <span class="badge">LIQ ✓</span>
       </div>
-      <p>ABC solicita despacho de los 10,200 kg de Exportable Malla 14+. Sistema genera:</p>
-<div class="code-block">DESPACHO DES-2026-045
-Cliente: Cooperativa ABC      Fecha: 28/05/2026
-Lote Hijo: LH-001 (Exportable Malla 14+)
-Cantidad: 10,200 kg
-Taza certificada: 84.5 pts SCA
-
-COMPOSICIÓN DE ORIGEN (devuelta al cliente)
-  Proveniente de SC-001:  2,040 kg
-  Proveniente de SC-002:  3,264 kg
-  Proveniente de SC-003:  4,896 kg
-
-Guía de Remisión emitida: GR-WOMG-0234</div>
+      <p>ABC no presentó observaciones dentro del plazo. A las 24:30 del 24-mayo el sistema cierra automáticamente la liquidación. Los Lotes Hijos pasan a estado <strong>"Procesado en custodia"</strong> y quedan disponibles para despacho. ABC ahora puede emitir órdenes de despacho cuando lo necesite.</p>
     </div>
 
     <div class="example-step">
       <div class="example-step-head">
-        <span class="example-step-num">Paso 11</span>
+        <span class="example-step-num">Paso 12</span>
+        <h4>Empaque y despacho del producto terminado</h4>
+      </div>
+      <p>El 28-mayo a las 10:00 (dentro de la ventana 9:00-16:30), ABC solicita despacho de los 12,350 kg de Exportable. Operador hace picking, empaca según especificación de la OP (Yute 69kg + GrainPro), pesaje de salida y emite guía:</p>
+<div class="code-block">DESPACHO DES-2026-045         Fecha: 28/05/2026 11:15
+Cliente: Cooperativa ABC      Guía emitida: GR-WOMG-0234
+
+PRODUCTO ENTREGADO
+  LH-001 · Exportable M14+   12,350 kg   Grado 1 SCAP
+  Taza certificada: 84.5 pts SCA
+  Empaque: 179 sacos de Yute 69kg + GrainPro
+
+COMPOSICIÓN DE ORIGEN (devuelta al cliente)
+  Proveniente de SC-001:  2,470 kg  (20.0%)
+  Proveniente de SC-002:  3,952 kg  (32.0%)
+  Proveniente de SC-003:  5,928 kg  (48.0%)
+
+INFORME DE MERMA disponible para el cliente (valor tributario)</div>
+    </div>
+
+    <div class="example-step">
+      <div class="example-step-head">
+        <span class="example-step-num">Paso 13</span>
         <h4>Cierre en el ERP del cliente</h4>
       </div>
       <p>ABC carga DES-2026-045 en su ERP. Allí reconstruye la trazabilidad de origen completa:</p>
@@ -2116,46 +2200,49 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
       </thead>
       <tbody>
         <tr class="in">
-          <td>01</td><td>20/05 09:15</td><td>Recepción camión 1</td><td>ABC</td><td>REC-101 / SC-001</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>50</td><td>3,445</td><td>Guía 0001</td>
+          <td>01</td><td>20/05 09:15</td><td>Recepción camión 1 · ítem SC-001</td><td>ABC</td><td>REC-101 / SC-001</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>50</td><td>3,445</td><td>Guía 0001</td>
         </tr>
         <tr class="in">
-          <td>02</td><td>20/05 09:15</td><td>Recepción camión 1</td><td>ABC</td><td>REC-101 / SC-002</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>80</td><td>5,510</td><td>Guía 0001</td>
+          <td>02</td><td>20/05 09:15</td><td>Recepción camión 1 · ítem SC-002</td><td>ABC</td><td>REC-101 / SC-002</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>80</td><td>5,510</td><td>Guía 0001</td>
         </tr>
         <tr class="in">
-          <td>03</td><td>20/05 10:45</td><td>Recepción camión 2</td><td>ABC</td><td>REC-102 / SC-003</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>120</td><td>8,275</td><td>Guía 0002</td>
+          <td>03</td><td>20/05 10:45</td><td>Recepción camión 2 · ítem SC-003</td><td>ABC</td><td>REC-102 / SC-003</td><td><span class="pillsm">— (s/sello)</span></td><td>En tránsito</td><td class="mov-in">+ ENT</td><td>120</td><td>8,275</td><td>Guía 0002</td>
         </tr>
         <tr>
-          <td>04</td><td>20/05 14:20</td><td>AFE firmado · todos los lotes pasan a custodia</td><td>ABC</td><td>SC-001, SC-002, SC-003</td><td>Bodega A (MP·ORG)</td><td>En custodia</td><td>≡ MOV</td><td>250</td><td>17,230</td><td>AFE-2026-088</td>
+          <td>04</td><td>20/05 14:20</td><td>AFE firmado + cliente declara sello ORG</td><td>ABC</td><td>REC-101, REC-102</td><td>Bodega A (MP·ORG)</td><td>En custodia</td><td>≡ MOV</td><td>250</td><td>17,230</td><td>AFE-2026-088</td>
         </tr>
         <tr class="out">
-          <td>05</td><td>22/05 08:00</td><td>OP aceptada · entra a proceso</td><td>ABC</td><td>LP-2026-001</td><td>Bodega A (MP·ORG)</td><td>En proceso</td><td class="mov-out">− SAL</td><td>250</td><td>17,230</td><td>OP-2026-014</td>
-        </tr>
-        <tr class="in">
-          <td>06</td><td>22/05 14:30</td><td>Fin de proceso · LH Exportable Malla 14+</td><td>ABC</td><td>LH-001</td><td>Bodega B (PT)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>148</td><td>10,200</td><td>LP-2026-001</td>
-        </tr>
-        <tr class="in">
-          <td>07</td><td>22/05 14:30</td><td>Fin de proceso · LH Exportable Malla 13</td><td>ABC</td><td>LH-002</td><td>Bodega B (PT)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>31</td><td>2,150</td><td>LP-2026-001</td>
-        </tr>
-        <tr class="in">
-          <td>08</td><td>22/05 14:30</td><td>Fin de proceso · LH Segunda</td><td>ABC</td><td>LH-003</td><td>Bodega C (SUB)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>12</td><td>850</td><td>LP-2026-001</td>
-        </tr>
-        <tr class="in">
-          <td>09</td><td>22/05 14:30</td><td>Fin de proceso · LH Escojo+Menudo+Coco</td><td>ABC</td><td>LH-004 / 005 / 006</td><td>Bodega C (SUB)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>9</td><td>625</td><td>LP-2026-001</td>
-        </tr>
-        <tr class="in">
-          <td>10</td><td>22/05 14:30</td><td>Fin de proceso · LH Cáscara</td><td>ABC</td><td>LH-007</td><td>Patio (MERMA)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>—</td><td>3,250</td><td>LP-2026-001</td>
-        </tr>
-        <tr class="in">
-          <td>11</td><td>22/05 14:30</td><td>Fin de proceso · LH Piedra/merma</td><td>ABC</td><td>LH-008</td><td>Patio (MERMA)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>—</td><td>155</td><td>LP-2026-001</td>
-        </tr>
-        <tr>
-          <td>12</td><td>23/05 17:00</td><td>Liquidación borrador emitida</td><td>ABC</td><td>todos los LH</td><td>—</td><td>—</td><td>≡ DOC</td><td>—</td><td>—</td><td>LIQ-2026-014 (borrador)</td>
-        </tr>
-        <tr>
-          <td>13</td><td>26/05 09:30</td><td>Liquidación definitiva (cliente aprobó)</td><td>ABC</td><td>todos los LH</td><td>—</td><td>—</td><td>≡ DOC</td><td>—</td><td>—</td><td>LIQ-2026-014</td>
+          <td>05</td><td>22/05 07:45</td><td><strong>Merma de almacén</strong> (pérdida humedad)</td><td>ABC</td><td>REC-101, REC-102</td><td>Bodega A (MP·ORG)</td><td>En custodia</td><td class="mov-out">− MER</td><td>—</td><td>3.5</td><td>INF-MERMA-014</td>
         </tr>
         <tr class="out">
-          <td>14</td><td>28/05 11:00</td><td>Despacho · sale LH-001 completo</td><td>ABC</td><td>LH-001</td><td>Bodega B (PT)</td><td>Despachado</td><td class="mov-out">− SAL</td><td>148</td><td>10,200</td><td>DES-2026-045 / GR-WOMG-0234</td>
+          <td>06</td><td>22/05 08:00</td><td>OP aceptada · entra a línea</td><td>ABC</td><td>LP-2026-001</td><td>Bodega A (MP·ORG)</td><td>En proceso</td><td class="mov-out">− SAL</td><td>250</td><td>17,226.5</td><td>OP-2026-014</td>
+        </tr>
+        <tr class="in">
+          <td>07</td><td>22/05 14:30</td><td>Fin de proceso · <strong>Exportable</strong> (M14+ familia)</td><td>ABC</td><td>LH-001</td><td>Bodega B (PT·ORG)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>179</td><td>12,350</td><td>LP-2026-001</td>
+        </tr>
+        <tr class="in">
+          <td>08</td><td>22/05 14:30</td><td>Fin de proceso · MC / Malla 13 (separada)</td><td>ABC</td><td>LH-002</td><td>Bodega C (SUB·ORG)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>12</td><td>850</td><td>LP-2026-001</td>
+        </tr>
+        <tr class="in">
+          <td>09</td><td>22/05 14:30</td><td>Fin de proceso · Segunda</td><td>ABC</td><td>LH-003</td><td>Bodega C (SUB·ORG)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>5</td><td>320</td><td>LP-2026-001</td>
+        </tr>
+        <tr class="in">
+          <td>10</td><td>22/05 14:30</td><td>Fin de proceso · Escojo + Menudo</td><td>ABC</td><td>LH-004 / LH-005</td><td>Bodega C (SUB·ORG)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>4</td><td>305</td><td>LP-2026-001</td>
+        </tr>
+        <tr class="in">
+          <td>11</td><td>22/05 14:30</td><td>Fin de proceso · Cáscara (no entrega)</td><td>ABC</td><td>LH-007</td><td>Patio (MERMA)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>—</td><td>3,250</td><td>LP-2026-001</td>
+        </tr>
+        <tr class="in">
+          <td>12</td><td>22/05 14:30</td><td>Fin de proceso · Piedra (no entrega)</td><td>ABC</td><td>LH-008</td><td>Patio (MERMA)</td><td>Procesado</td><td class="mov-in">+ ENT</td><td>—</td><td>151.5</td><td>LP-2026-001</td>
+        </tr>
+        <tr>
+          <td>13</td><td>23/05 14:30</td><td>Liquidación borrador emitida (plazo 24h)</td><td>ABC</td><td>todos los LH</td><td>—</td><td>—</td><td>≡ DOC</td><td>—</td><td>—</td><td>LIQ-2026-014 (borrador)</td>
+        </tr>
+        <tr>
+          <td>14</td><td>24/05 14:30</td><td>Liquidación auto-aprobada (sin observaciones)</td><td>ABC</td><td>todos los LH</td><td>Bodega B / C</td><td>Procesado en custodia</td><td>≡ MOV</td><td>—</td><td>—</td><td>LIQ-2026-014</td>
+        </tr>
+        <tr class="out">
+          <td>15</td><td>28/05 11:00</td><td>Empaque y despacho · LH-001 completo</td><td>ABC</td><td>LH-001</td><td>Bodega B (PT·ORG)</td><td>Despachado</td><td class="mov-out">− SAL</td><td>179</td><td>12,350</td><td>DES-2026-045 / GR-WOMG-0234</td>
         </tr>
       </tbody>
     </table>
@@ -2163,12 +2250,14 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
 
     <h3>Lectura del kardex</h3>
     <ul>
-      <li><strong>Asientos 01-03 (verdes):</strong> tres entradas al kardex por la recepción. Cada lote del cliente es un ítem independiente. Sin sello todavía, en estado "En tránsito".</li>
-      <li><strong>Asiento 04 (gris):</strong> evento de cambio de estado y de almacén. El AFE autorizó el café (humedad y rendimiento dentro de rango) y la OP siguiente define que se procesará como orgánico, por lo que pasa a Bodega A (tipo Materia Prima, sello ORG). No hay entrada ni salida — es un movimiento intra-cliente.</li>
-      <li><strong>Asiento 05 (rojo):</strong> salida de Materia Prima al iniciar el proceso. El lote completo se va a Producto en Proceso (estado).</li>
-      <li><strong>Asientos 06-11 (verdes):</strong> entradas a producto terminado y subproductos / mermas. Cada Lote Hijo es una entrada distinta con su propio almacén destino según el tipo (PT, SUB, MERMA).</li>
-      <li><strong>Asientos 12-13 (gris):</strong> eventos documentales (borrador y definitiva). No mueven stock, pero quedan en la bitácora del kardex como hitos verificables.</li>
-      <li><strong>Asiento 14 (rojo):</strong> salida física al despachar. El lote sale del kardex de ABC con guía de remisión asociada.</li>
+      <li><strong>Asientos 01-03 (verdes):</strong> tres entradas al kardex por las recepciones. Cada lote del cliente es un ítem independiente. Sin sello todavía, en estado "En tránsito".</li>
+      <li><strong>Asiento 04 (gris):</strong> tras el AFE, el cliente declara que el café es orgánico. El lote pasa a "En custodia" y se ubica en Bodega A (Materia Prima · ORG). No hay entrada ni salida — es un cambio de estado y ubicación.</li>
+      <li><strong>Asiento 05 (rojo):</strong> <strong>merma de almacén</strong>. Se pesa nuevamente al pasar a línea y se descuentan 3.5 kg perdidos por humedad. Genera el Informe de Merma para el cliente.</li>
+      <li><strong>Asiento 06 (rojo):</strong> salida de Materia Prima al iniciar el proceso. El lote completo entra a la línea con el peso ya descontado de la merma.</li>
+      <li><strong>Asientos 07-12 (verdes):</strong> entradas a producto terminado, subproductos y mermas. Observa que <strong>el exportable (M14+) es una sola entrada</strong> (LH-001), no una por malla. La M13 va separada como MC (LH-002).</li>
+      <li><strong>Asiento 13 (gris):</strong> emisión del borrador de liquidación. Plazo de 24 horas para que el cliente observe.</li>
+      <li><strong>Asiento 14 (gris):</strong> auto-aprobación a las 24 horas sin observaciones. Los lotes pasan a "Procesado en custodia" y quedan disponibles para despacho.</li>
+      <li><strong>Asiento 15 (rojo):</strong> empaque y despacho del LH-001. Sale físicamente con guía de remisión.</li>
     </ul>
 
     <h3>Estado del stock de ABC al cierre del despacho</h3>
@@ -2177,17 +2266,17 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
     <table>
       <thead><tr><th>Lote</th><th>Subproducto</th><th>Almacén</th><th>Kg</th><th>Estado</th></tr></thead>
       <tbody>
-        <tr><td>LH-002</td><td>Exportable Malla 13</td><td>Bodega B (PT)</td><td>2,150</td><td>Procesado</td></tr>
-        <tr><td>LH-003</td><td>Segunda</td><td>Bodega C (SUB)</td><td>850</td><td>Procesado</td></tr>
-        <tr><td>LH-004 a 006</td><td>Escojo, Menudo, Coco</td><td>Bodega C (SUB)</td><td>625</td><td>Procesado</td></tr>
-        <tr><td>LH-007</td><td>Cáscara</td><td>Patio (MERMA)</td><td>3,250</td><td>Procesado</td></tr>
-        <tr><td>LH-008</td><td>Piedra / merma</td><td>Patio (MERMA)</td><td>155</td><td>Procesado</td></tr>
+        <tr><td>LH-002</td><td>MC / Malla 13</td><td>Bodega C (SUB·ORG)</td><td>850</td><td>Procesado en custodia</td></tr>
+        <tr><td>LH-003</td><td>Segunda</td><td>Bodega C (SUB·ORG)</td><td>320</td><td>Procesado en custodia</td></tr>
+        <tr><td>LH-004 / 005</td><td>Escojo + Menudo</td><td>Bodega C (SUB·ORG)</td><td>305</td><td>Procesado en custodia</td></tr>
+        <tr><td>LH-007</td><td>Cáscara</td><td>Patio (MERMA)</td><td>3,250</td><td>Procesado (no entrega)</td></tr>
+        <tr><td>LH-008</td><td>Piedra / merma</td><td>Patio (MERMA)</td><td>151.5</td><td>Procesado (no entrega)</td></tr>
       </tbody>
     </table>
     </div>
-    <p>ABC ve estos saldos en su portal en cualquier momento, sin llamar por teléfono. Puede emitir órdenes de despacho sobre cualquiera de estos lotes (incluso parciales) y el kardex registrará las salidas correspondientes.</p>
+    <p>ABC ve estos saldos en su portal en cualquier momento. Los lotes en "Procesado en custodia" pueden ser despachados cuando lo necesite. La cáscara y piedra quedan registradas para el inventario de masas requerido por la certificadora, pero no se entregan físicamente.</p>
 
-    <blockquote class="callout">Cada asiento del kardex tiene un comprobante asociado (guía, OP, AFE, LIQ, GR de salida). Esa es la prueba documental de cada movimiento — es lo que permite auditar y reconstruir la trazabilidad completa.</blockquote>
+    <blockquote class="callout">Cada asiento del kardex tiene un comprobante asociado (guía, OP, AFE, Informe de Merma, LIQ, GR de salida). Esa es la prueba documental de cada movimiento — es lo que permite auditar y reconstruir la trazabilidad completa, incluyendo el inventario de masas que pide la certificadora.</blockquote>
   </section>
 
   <section class="chapter" id="transferencia">
@@ -2323,7 +2412,7 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
   <section class="chapter" id="casos">
     <span class="chapter-number">Capítulo 08</span>
     <h2>Casos de uso</h2>
-    <p>Doce casos de uso cubren todas las interacciones principales del sistema. Cliquea cada uno para ver el detalle.</p>
+    <p>Veinte casos de uso cubren todas las interacciones principales del sistema. Cliquea cada uno para ver el detalle.</p>
 
     <div class="uc-list">
       <div class="uc-item">
@@ -2372,7 +2461,7 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
             <li>Imprime ticket de contramuestra y guía de recepción.</li>
             <li>Notifica al cliente.</li>
           </ol>
-          <h5>Postcondición</h5><p>Recepción creada, stock en almacén virtual actualizado, muestra derivada a laboratorio.</p>
+          <h5>Postcondición</h5><p>Recepción creada, lote registrado en el kardex en estado "En tránsito", muestra derivada a laboratorio.</p>
         </div></div>
       </div>
 
@@ -2710,6 +2799,135 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
           </ul>
         </div></div>
       </div>
+
+      <div class="uc-item">
+        <button class="uc-header">
+          <span class="uc-code">CU-16</span>
+          <span class="uc-title">Registrar merma de almacén y emitir Informe</span>
+          <span class="uc-actor">Operador de Planta</span>
+          <span class="uc-arrow">▶</span>
+        </button>
+        <div class="uc-body"><div class="uc-content">
+          <h5>Precondición</h5><p>OP aprobada, lote listo para entrar a línea.</p>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Antes de iniciar el proceso, operador pesa nuevamente el café.</li>
+            <li>Sistema compara con el peso de ingreso y calcula la merma.</li>
+            <li>Genera asiento de kardex tipo "MERMA" con la diferencia.</li>
+            <li>Sistema genera <strong>Informe de Merma</strong> en PDF firmado.</li>
+            <li>Notifica al cliente con el informe adjunto.</li>
+          </ol>
+          <h5>Postcondición</h5><p>Merma registrada. Informe tributario disponible para el cliente.</p>
+        </div></div>
+      </div>
+
+      <div class="uc-item">
+        <button class="uc-header">
+          <span class="uc-code">CU-17</span>
+          <span class="uc-title">Procesar mezcla de pergamino + verde en un mismo embarque</span>
+          <span class="uc-actor">Cliente</span>
+          <span class="uc-arrow">▶</span>
+        </button>
+        <div class="uc-body"><div class="uc-content">
+          <h5>Precondición</h5><p>Cliente tiene en stock tanto pergamino como café verde (con certificado si aplica orgánico).</p>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Cliente emite <strong>OP-A para pergamino</strong> (tipo proceso normal · pasa por pilonera).</li>
+            <li>Cliente emite <strong>OP-B para verde</strong> (tipo reproceso · solo zaranda).</li>
+            <li>Cada OP genera su propio Lote de Proceso, ejecución y liquidación independiente.</li>
+            <li>Al final, cliente emite una <strong>Orden de Producto Terminado</strong> que agrupa los resultados exportables de ambas OPs para un mismo despacho.</li>
+            <li>El despacho consolida ambos lotes en una sola guía de salida.</li>
+          </ol>
+          <h5>Postcondición</h5><p>Dos liquidaciones separadas (trazabilidad por tipo), un despacho consolidado.</p>
+          <blockquote>Sistema impide mezclar pergamino y verde en una misma OP — pasan por líneas distintas físicamente.</blockquote>
+        </div></div>
+      </div>
+
+      <div class="uc-item">
+        <button class="uc-header">
+          <span class="uc-code">CU-18</span>
+          <span class="uc-title">Cambiar sello (condición) de café en stock</span>
+          <span class="uc-actor">Cliente</span>
+          <span class="uc-arrow">▶</span>
+        </button>
+        <div class="uc-body"><div class="uc-content">
+          <h5>Precondición</h5><p>Cliente tiene café en custodia con un sello declarado y quiere cambiarlo (ej. de convencional a orgánico para completar un embarque).</p>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Cliente accede a su stock y selecciona el lote.</li>
+            <li>Elige "Cambiar condición / sello".</li>
+            <li>Indica el nuevo sello y el motivo.</li>
+            <li>Sistema valida según tipo de café:
+              <ul>
+                <li><strong>Pergamino:</strong> el cliente puede cambiar libremente (es su responsabilidad declarar).</li>
+                <li><strong>Verde:</strong> para subir a orgánico, debe adjuntar certificado del molino de origen.</li>
+              </ul>
+            </li>
+            <li>Cliente firma digitalmente la declaración de responsabilidad.</li>
+            <li>Sistema genera <strong>documento de cambio de condición firmado</strong> y asiento en kardex.</li>
+            <li>El lote físicamente cambia de bodega si el nuevo sello requiere ubicación distinta.</li>
+          </ol>
+          <h5>Postcondición</h5><p>Sello cambiado con bitácora auditable. La declaración firmada por el cliente queda asociada al lote para futuras auditorías.</p>
+        </div></div>
+      </div>
+
+      <div class="uc-item">
+        <button class="uc-header">
+          <span class="uc-code">CU-19</span>
+          <span class="uc-title">Intercambio de turno entre clientes con código de verificación</span>
+          <span class="uc-actor">Cliente vendedor de turno + Cliente comprador de turno</span>
+          <span class="uc-arrow">▶</span>
+        </button>
+        <div class="uc-body"><div class="uc-content">
+          <h5>Precondición</h5><p>Cliente A tiene un turno reservado y otro cliente B necesita ese turno. Ambos se han puesto de acuerdo por fuera del sistema.</p>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Cliente B entra al portal, ve el calendario (solo distingue ocupado/libre, no muestra el dueño del turno).</li>
+            <li>Cliente B selecciona el turno ocupado y solicita "Solicitar intercambio".</li>
+            <li>Sistema genera una solicitud y envía notificación + correo con <strong>código de verificación único</strong> al cliente A.</li>
+            <li>Cliente A recibe el correo con un enlace seguro o un código.</li>
+            <li>Cliente A entra al sistema (o usa el enlace) y acepta el intercambio ingresando el código.</li>
+            <li>Sistema confirma el cambio de titular del turno y notifica a ambos clientes y al operador de planta.</li>
+          </ol>
+          <h5>Postcondición</h5><p>Turno reasignado con respaldo documental (solicitud + aceptación con código). El operador sabe qué cliente espera en cada turno.</p>
+          <h5>Flujos alternativos</h5>
+          <ul>
+            <li><strong>A1:</strong> Cliente A rechaza o no responde en X horas → intercambio cancelado.</li>
+            <li><strong>A2:</strong> Código incorrecto → bloqueo temporal por seguridad.</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="uc-item">
+        <button class="uc-header">
+          <span class="uc-code">CU-20</span>
+          <span class="uc-title">Generar Inventario de Masas para auditoría de certificación</span>
+          <span class="uc-actor">Jefe de Planta / Administrador</span>
+          <span class="uc-arrow">▶</span>
+        </button>
+        <div class="uc-body"><div class="uc-content">
+          <h5>Precondición</h5><p>Periodo de auditoría de certificadora (típicamente febrero-abril). Necesidad de presentar cuadre de masas por certificación.</p>
+          <h5>Flujo principal</h5>
+          <ol>
+            <li>Usuario accede al módulo de reportes y selecciona "Inventario de Masas".</li>
+            <li>Filtra por certificación (ORG / RA) y rango de fechas.</li>
+            <li>Sistema genera reporte con:
+              <ul>
+                <li>Total de materia prima ingresada por organización/cliente</li>
+                <li>Lotes procesados y sus rendimientos reales</li>
+                <li>Producto terminado entregado (exportable)</li>
+                <li>Subproductos generados (segunda, MC, etc.)</li>
+                <li>Mermas registradas (de almacén + cáscara + piedra)</li>
+                <li>Cuadre automático: ingreso = salidas + mermas + stock pendiente</li>
+              </ul>
+            </li>
+            <li>Si el cuadre cierra ✓, exporta a PDF/Excel para presentar al auditor.</li>
+            <li>Si hay diferencias, sistema alerta y permite investigar el origen (movimientos manuales, cambios de sello, transferencias).</li>
+          </ol>
+          <h5>Postcondición</h5><p>Reporte auditable disponible. Facilita la auditoría anual de certificación.</p>
+          <blockquote>Este reporte responde directamente a lo que la certificadora pide: "tráeme todas las organizaciones que has procesado como orgánico" + cuadre de masas.</blockquote>
+        </div></div>
+      </div>
     </div>
   </section>
 
@@ -2769,7 +2987,7 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
   <section class="chapter" id="preguntas">
     <span class="chapter-number">Capítulo 10</span>
     <h2>Estado de aclaraciones con el cliente</h2>
-    <p>Después de la conversación del 14 de mayo de 2026 con WOMG, varios puntos del cuestionario inicial fueron resueltos y surgieron nuevos. Esta sección registra ambos lados.</p>
+    <p>Después de dos entrevistas profundas con WOMG SAC (14-mayo y 15-mayo de 2026), el alcance está prácticamente cerrado para la versión 1. Esta sección registra los puntos confirmados, los nuevos descubrimientos y las preguntas que aún quedan por resolver.</p>
 
     <h3>Puntos confirmados o aclarados</h3>
     <div class="confirmed-grid">
@@ -2850,150 +3068,225 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
       </div>
     </div>
 
-    <h3>Nuevas preguntas surgidas de la conversación</h3>
-    <p>Aspectos adicionales que conviene precisar antes de pasar a diseño técnico.</p>
+    <h3>Aclaraciones adicionales de la segunda entrevista (15-mayo)</h3>
+    <div class="confirmed-grid">
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Sello al pasar a custodia</h5>
+        <p>El cliente declara el sello tras el AFE; si después cambia, se hace movimiento manual entre bodegas. No al emitir OP como se había modelado antes.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Café verde: certificado obligatorio</h5>
+        <p>Si entra como ORG, el cliente debe adjuntar certificado del molino de origen. Sin certificado solo pasa como convencional.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Capacidad en sacos</h5>
+        <p>5,000-8,000 sacos por bodega de pergamino. No por toneladas ni m³.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Bodegas físicamente separadas</h5>
+        <p>Por paredes o mallas. ORG, RA y convencional cada uno por separado, según exige la certificadora.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Cáscara y piedra NO se entregan</h5>
+        <p>Solo se le entregan al cliente: exportable, MC, segunda, escojo, menudo y coco. Cáscara y piedra van a mermas que la planta descarta.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Envases típicamente del cliente</h5>
+        <p>Mayoritariamente la organización lleva sus sacos y yutel. Algunos molinos los proveen como servicio adicional.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Exportable = una sola familia</h5>
+        <p>M14, M15, M16, M17+ salen como UN solo Lote Hijo "Exportable". La separación fina solo si la OP la solicita explícitamente.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>MC / Malla 13 separada por defecto</h5>
+        <p>Siempre se separa del exportable, salvo que la OP indique "incluir M13 en exportable" (caso del exportador completando contenedor).</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>OP por sacos, no por kg</h5>
+        <p>El cliente especifica "100 sacos de la guía 20 + 30 de la guía 40", incluso de guías de fechas distintas. Sistema descuenta del stock.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Café verde = reproceso</h5>
+        <p>No pasa por pilonera (ya está pilado). Solo zaranda y selección. Es un tipo distinto de proceso.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Mezcla pergamino + verde = 2 OPs</h5>
+        <p>Pasan por líneas distintas, así que cada uno requiere su propia OP y liquidación. Luego se pueden agrupar en Orden de Producto Terminado para despacho.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Merma de almacén</h5>
+        <p>El café pierde humedad en custodia (~0.014 kg/saco). Hay que pesar al pasar a línea y emitir Informe de Merma con valor tributario.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Plazo de liquidación: 24h</h5>
+        <p>El borrador se acepta automáticamente a las 24 horas (configurable), no 2-3 días.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Procesado en custodia</h5>
+        <p>Si el cliente no despacha inmediatamente, el producto terminado queda en este estado hasta que solicite la salida.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Empaque/packing como paso explícito</h5>
+        <p>Después del picking, antes del pesaje de salida, hay un paso de empaque según especificación de la OP (sacos, envases, etiquetas).</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Calendario: solo ocupado/libre</h5>
+        <p>El cliente no ve quién tiene reservado el turno. Solo si está ocupado o no.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Intercambio de turnos: con código</h5>
+        <p>Cliente B solicita el turno ocupado, sistema envía código de verificación por correo al cliente A. Si A acepta con el código, el turno se reasigna.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Transferencia: solo MP y PT</h5>
+        <p>Café en proceso NO se puede transferir entre clientes. Solo materia prima y producto terminado.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Cambio de sello en stock</h5>
+        <p>Cliente puede cambiar la condición de su café (responsabilidad propia en pergamino; con certificado obligatorio en verde). Sistema genera documento firmado.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Norma SCAP aplicable</h5>
+        <p>Grado 1: 8-15 defectos en 300g. Grado 2: 16-25. El sistema puede clasificar automáticamente tras el AFP.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Tipos de proceso G1/G2/G3</h5>
+        <p>Son tipos de limpieza, no de pulido. El café peruano no se pule (sí el colombiano). Los nombres se mantienen.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Walk-ins no permitidos</h5>
+        <p>No se aceptan camiones sin programación previa. Origina desorden.</p>
+      </div>
+      <div class="confirmed-item">
+        <span class="cf-badge">Confirmado</span>
+        <h5>Inventario de Masas para auditoría</h5>
+        <p>Reporte clave que la certificadora pide en febrero-abril: ingreso por organización, salidas, mermas, cuadre automático.</p>
+      </div>
+    </div>
+
+    <h3>Preguntas que aún quedan pendientes</h3>
+    <p>Después de dos entrevistas profundas, quedan estos puntos específicos por aclarar antes de pasar a diseño técnico detallado.</p>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">11.1</span> Almacenes físicos y configuración inicial</div>
+      <div class="faq-head"><span class="faq-head-num">11.1</span> Merma de almacén — cálculo</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">N1</div><div class="faq-text"><strong>Inventario de bodegas:</strong> ¿Cuántas bodegas físicas tiene WOMG hoy? ¿Cómo las identifica internamente? Necesitamos la lista exacta para la configuración inicial.</div></div>
-        <div class="faq-item"><div class="faq-num">N2</div><div class="faq-text"><strong>Capacidad por bodega:</strong> ¿Cómo se mide la capacidad (sacos, toneladas, m³)? ¿Hay capacidad máxima formal o se calcula visualmente?</div></div>
-        <div class="faq-item"><div class="faq-num">N3</div><div class="faq-text"><strong>Segregación de certificaciones:</strong> ¿Las bodegas están físicamente separadas por certificación, o son la misma bodega con secciones distintas?</div></div>
-        <div class="faq-item"><div class="faq-num">N4</div><div class="faq-text"><strong>Movimientos manuales entre bodegas:</strong> ¿Quién está autorizado (operador, jefe de planta, ambos)? ¿Cuáles son las reglas operativas?</div></div>
+        <div class="faq-item"><div class="faq-num">P1</div><div class="faq-text"><strong>Mecanismo de medición:</strong> ¿La merma se calcula <em>solo por diferencia de peso al pasar a línea</em>, o requiere también medir la humedad nueva para tener el valor real? <em>Mi propuesta: solo por peso, antes de entrar a línea de producción — es más simple y operativo. ¿Lo confirman?</em></div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">11.2</span> Transferencia entre clientes</div>
+      <div class="faq-head"><span class="faq-head-num">11.2</span> Inventario de Masas para certificación</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">N5</div><div class="faq-text"><strong>Frecuencia:</strong> ¿Qué tan frecuente es la compra-venta entre clientes dentro de la planta? ¿Es un caso de uso primario o ocasional?</div></div>
-        <div class="faq-item"><div class="faq-num">N6</div><div class="faq-text"><strong>Tipos de transferencia:</strong> ¿Aplica a materia prima y producto terminado por igual? ¿Café en proceso puede transferirse o solo en almacén?</div></div>
-        <div class="faq-item"><div class="faq-num">N7</div><div class="faq-text"><strong>Reproceso post-transferencia:</strong> ¿Es común que el comprador necesite reprocesar el café recibido a otros parámetros (defectos, malla)?</div></div>
-        <div class="faq-item"><div class="faq-num">N8</div><div class="faq-text"><strong>Plazo para cargar Guía SUNAT:</strong> ¿Cuántos días desde la Orden de Despacho tiene el comprador para cargar su Guía? ¿Qué pasa si no la carga (cancelación automática)?</div></div>
+        <div class="faq-item"><div class="faq-num">P2</div><div class="faq-text"><strong>Formato del reporte:</strong> ¿Qué campos exactos pide la certificadora ORG/RA en la auditoría anual? Si existe un formato/template usado en auditorías anteriores, conviene tenerlo de referencia para diseñar el reporte exacto. <em>Queda pendiente para fase de diseño.</em></div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">11.3</span> Café verde / pilado y casos especiales</div>
+      <div class="faq-head"><span class="faq-head-num">11.3</span> Orden de Producto Terminado consolidada</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">N9</div><div class="faq-text"><strong>Tratamiento del café verde:</strong> Cuando entra café verde y el cliente pide tratarlo como pergamino para fines de certificación, ¿qué documento sustenta esa conversión? ¿Quién autoriza?</div></div>
-        <div class="faq-item"><div class="faq-num">N10</div><div class="faq-text"><strong>Auditoría de certificación:</strong> ¿Cómo se preparan los reportes para auditoras de ORG/RA? ¿Qué información necesitan exactamente?</div></div>
+        <div class="faq-item"><div class="faq-num">P3</div><div class="faq-text"><strong>Documento consolidado de despacho:</strong> Cuando se combinan resultados de varias OPs (típicamente pergamino + verde) para un mismo embarque, ¿cómo se identifica este agrupamiento? ¿Se emite una "Orden de Despacho Consolidada" con su propio número correlativo? ¿Qué firma requiere?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">11.4</span> Programación y comunidad de clientes</div>
+      <div class="faq-head"><span class="faq-head-num">11.4</span> Cambio de sello en stock — documentación</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">N11</div><div class="faq-text"><strong>Intercambio de turnos:</strong> Henry mencionó que clientes pueden negociar entre sí cambios de fecha de proceso. ¿Esto se gestiona dentro del sistema (calendario visible) o solo entre ellos por fuera?</div></div>
-        <div class="faq-item"><div class="faq-num">N12</div><div class="faq-text"><strong>Visibilidad del calendario:</strong> ¿Un cliente puede ver qué otros clientes tienen reservas? ¿Solo sus propias reservas? ¿Disponibilidad anonimizada?</div></div>
-      </div>
-    </div>
-
-    <h3>Preguntas originales aún pendientes</h3>
-    <p>Las siguientes preguntas del cuestionario inicial aún no han sido resueltas y deben validarse en próxima reunión.</p>
-
-    <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.1</span> Modelo de Lote y Recepción</div>
-      <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">01</div><div class="faq-text"><strong>Confirmación del modelo de tres niveles:</strong> ¿Están de acuerdo en distinguir formalmente "Recepción", "Lote de Proceso" y "Lote Hijo"? ¿O prefieren mantener otra terminología?</div></div>
-        <div class="faq-item"><div class="faq-num">02</div><div class="faq-text"><strong>Lotes parciales:</strong> ¿Es común que un cliente pida procesar solo parte de una recepción? ¿El sistema debe soportar fraccionamiento desde la v1?</div></div>
-        <div class="faq-item"><div class="faq-num">03</div><div class="faq-text"><strong>Mezcla entre clientes:</strong> ¿Hay algún caso donde se mezcle café de dos clientes en un mismo lote de proceso (blends a pedido)? ¿O siempre "un cliente por lote"?</div></div>
-        <div class="faq-item"><div class="faq-num">04</div><div class="faq-text"><strong>Mezcla de certificaciones:</strong> Confirmar que orgánico nunca se mezcla con convencional. ¿Otras restricciones (FT con no-FT)?</div></div>
+        <div class="faq-item"><div class="faq-num">P4</div><div class="faq-text"><strong>Documento del cambio:</strong> Cuando el cliente cambia la condición de su café en stock, el usuario lo hace en el sistema (asume responsabilidad). El sistema genera un <strong>documento firmado digitalmente por el cliente</strong> que queda asociado al lote. ¿Se requiere algún campo adicional (motivo declarado, número de lote del cliente al que se asocia, etc.)?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.2</span> Trazabilidad del cliente</div>
+      <div class="faq-head"><span class="faq-head-num">11.5</span> Intercambio de turnos — flujo confirmado</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">05</div><div class="faq-text"><strong>Captura del código de lote del cliente:</strong> ¿(A) Cliente lo declara al programar el envío, (B) Operador lo digita al recepcionar, o (C) Llega por API? ¿Las tres a la vez?</div></div>
-        <div class="faq-item"><div class="faq-num">06</div><div class="faq-text"><strong>Clientes sin código de lote propio:</strong> ¿Se permite que WOMG genere un código interno por recepción y se lo asigne?</div></div>
-        <div class="faq-item"><div class="faq-num">07</div><div class="faq-text"><strong>Formato del código:</strong> ¿Hay restricciones de formato (longitud, caracteres permitidos) o se acepta cualquier texto libre?</div></div>
+        <div class="faq-item"><div class="faq-num">P5</div><div class="faq-text"><strong>Mecanismo de verificación:</strong> Cliente B ve el calendario (solo ocupado/libre), solicita el turno ocupado y el sistema le envía un <strong>código único por correo al cliente A</strong>. A acepta ingresando el código (o usando enlace seguro). Ya está modelado en CU-19. <em>¿Cuánto tiempo se le da a A para responder antes de cancelar automáticamente la solicitud?</em></div></div>
+      </div>
+    </div>
+
+    <h3>Otras preguntas pendientes (operativas / técnicas)</h3>
+    <p>Detalles que ayudarán a precisar el diseño técnico final, agrupados por área.</p>
+
+    <div class="faq-section">
+      <div class="faq-head"><span class="faq-head-num">12.1</span> Configuración inicial de la planta</div>
+      <div class="faq-list">
+        <div class="faq-item"><div class="faq-num">P6</div><div class="faq-text"><strong>Inventario de bodegas hoy:</strong> ¿Cuántas bodegas físicas tiene WOMG actualmente y con qué nombres operativos? Necesario para la configuración inicial del catálogo.</div></div>
+        <div class="faq-item"><div class="faq-num">P7</div><div class="faq-text"><strong>Movimientos manuales entre bodegas:</strong> ¿Quién está autorizado a hacerlos? ¿Solo Jefe de Planta o también Operador? ¿Algún tipo de movimiento requiere doble autorización?</div></div>
+        <div class="faq-item"><div class="faq-num">P8</div><div class="faq-text"><strong>Balanza electrónica de tonelaje:</strong> ¿La balanza actual tiene API o salida digital para integrar? ¿O se digita manualmente el peso?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.3</span> Procesos y subproductos</div>
+      <div class="faq-head"><span class="faq-head-num">12.2</span> Calidad y laboratorio</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">08</div><div class="faq-text"><strong>Catálogo de subproductos:</strong> Lista oficial (Exportable con cuántas mallas, Segunda, Escojo, Menudo, Coco, Cáscara, Piedra). ¿Falta alguno?</div></div>
-        <div class="faq-item"><div class="faq-num">09</div><div class="faq-text"><strong>Tipos de proceso:</strong> El Excel menciona G1, G2, G3, Reproceso. ¿Qué incluye cada uno? ¿Sub-variantes (con/sin separación de mallas, con/sin pulido)?</div></div>
-        <div class="faq-item"><div class="faq-num">10</div><div class="faq-text"><strong>Cáscara y piedra:</strong> ¿Son productos que el cliente se lleva o son merma que WOMG descarta? Si lo segundo, ¿se gestionan como stock o solo como reporte?</div></div>
-        <div class="faq-item"><div class="faq-num">11</div><div class="faq-text"><strong>Envases y empaques:</strong> ¿Los provee WOMG o el cliente? Si WOMG, ¿se cobran aparte y se gestionan como insumos?</div></div>
+        <div class="faq-item"><div class="faq-num">P9</div><div class="faq-text"><strong>Contramuestras:</strong> ¿Por cuánto tiempo se custodian las muestras físicas? ¿Cómo se identifican (etiqueta manual, código de barras, QR)?</div></div>
+        <div class="faq-item"><div class="faq-num">P10</div><div class="faq-text"><strong>Equipo de laboratorio:</strong> ¿Cuántos analistas físicos hay? ¿El catador (ASE) está siempre disponible o es por solicitud?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.4</span> Ingreso y capacidad</div>
+      <div class="faq-head"><span class="faq-head-num">12.3</span> Roles y usuarios</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">12</div><div class="faq-text"><strong>Modelo de capacidad:</strong> ¿Cómo se mide (sacos/turno, toneladas/día, m³ de almacén)?</div></div>
-        <div class="faq-item"><div class="faq-num">13</div><div class="faq-text"><strong>Capacidad segregada:</strong> ¿Tienen almacenes físicamente separados por certificación? ¿Control por almacén o global?</div></div>
-        <div class="faq-item"><div class="faq-num">14</div><div class="faq-text"><strong>Walk-ins:</strong> ¿Se aceptan camiones sin programación previa? ¿Con qué política?</div></div>
-        <div class="faq-item"><div class="faq-num">15</div><div class="faq-text"><strong>Turnos:</strong> Mañana (8-12) y tarde (2-5/6 pm). ¿Es fijo o configurable? ¿Turnos especiales (sábados, festivos)?</div></div>
-        <div class="faq-item"><div class="faq-num">16</div><div class="faq-text"><strong>Balanza:</strong> El ticket es de una balanza con software propio. ¿Integrar o reemplazar? ¿La balanza tiene API o salida serial?</div></div>
+        <div class="faq-item"><div class="faq-num">P11</div><div class="faq-text"><strong>Multiusuario por cliente:</strong> ¿Un mismo cliente puede tener varios usuarios autorizados con permisos distintos (uno consulta, otro firma OPs)?</div></div>
+        <div class="faq-item"><div class="faq-num">P12</div><div class="faq-text"><strong>Aprobaciones internas WOMG:</strong> ¿Quién del lado de WOMG aprueba una OP recibida? ¿Hay flujo de aprobación con más de un paso?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.5</span> Calidad y catación</div>
+      <div class="faq-head"><span class="faq-head-num">12.4</span> Notificaciones y firma digital</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">17</div><div class="faq-text"><strong>Tres tipos de análisis:</strong> Confirmar AFE (al recepcionar) + AFP (post-proceso) + ASE (catación). ¿Aplica ASE también para no exportables (segunda)?</div></div>
-        <div class="faq-item"><div class="faq-num">18</div><div class="faq-text"><strong>Obligatoriedad:</strong> ¿AFE en 100% de recepciones? ¿AFP en 100% de lotes hijos exportables? ¿ASE siempre o solo cuando el cliente lo pide?</div></div>
-        <div class="faq-item"><div class="faq-num">19</div><div class="faq-text"><strong>Variables AFE:</strong> Confirmar lista (humedad, rendimiento estimado, granulometría, defectos prelim, impurezas/cáscara). ¿Algo más?</div></div>
-        <div class="faq-item"><div class="faq-num">20</div><div class="faq-text"><strong>Variables AFP:</strong> Confirmar lista (rendimiento real, defectos en 300 g, granulometría final, humedad de salida, densidad). ¿Algo más?</div></div>
-        <div class="faq-item"><div class="faq-num">21</div><div class="faq-text"><strong>Variables ASE:</strong> Confirmar escala (SCA, propia) y campos. ¿Formato de hoja de catación específico?</div></div>
-        <div class="faq-item"><div class="faq-num">22</div><div class="faq-text"><strong>Catación múltiple:</strong> ¿Un mismo lote hijo puede tener varias cataciones? ¿Cuál prevalece?</div></div>
-        <div class="faq-item"><div class="faq-num">23</div><div class="faq-text"><strong>Umbrales de alerta:</strong> ¿Humedad y rendimiento aceptables (mínimo/máximo)? ¿Qué pasa fuera de rango?</div></div>
-        <div class="faq-item"><div class="faq-num">24</div><div class="faq-text"><strong>Contramuestras:</strong> ¿Por cuánto tiempo se custodian? ¿Dónde? ¿Identificación (etiqueta, QR)?</div></div>
-        <div class="faq-item"><div class="faq-num">25</div><div class="faq-text"><strong>Equipo de laboratorio:</strong> ¿Cuántos analistas físicos? ¿Catador interno o externo? ¿Q-Grader certificado?</div></div>
-        <div class="faq-item"><div class="faq-num">26</div><div class="faq-text"><strong>Liberación a liquidación:</strong> ¿Puede emitirse con AFP listo pero ASE pendiente, o exige los tres cerrados?</div></div>
+        <div class="faq-item"><div class="faq-num">P13</div><div class="faq-text"><strong>Canales de notificación:</strong> Confirmar correo + WhatsApp. ¿Algún otro canal (SMS, push de app)?</div></div>
+        <div class="faq-item"><div class="faq-num">P14</div><div class="faq-text"><strong>Firma digital:</strong> ¿Firma simple ("acepto" con clic), firma electrónica con certificado, o firma física escaneada?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.6</span> Roles y usuarios</div>
+      <div class="faq-head"><span class="faq-head-num">12.5</span> Despacho</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">27</div><div class="faq-text"><strong>Roles necesarios:</strong> Cliente, Operador de Balanza, Operador de Planta, Analista Físico, Catador, Jefe de Planta, Administrador. ¿Otros? ¿Subdivisiones?</div></div>
-        <div class="faq-item"><div class="faq-num">28</div><div class="faq-text"><strong>Multiusuario por cliente:</strong> ¿Varios usuarios autorizados con distintos permisos (uno consulta, otro firma OPs)?</div></div>
-        <div class="faq-item"><div class="faq-num">29</div><div class="faq-text"><strong>Aprobaciones internas:</strong> ¿Quién firma una OP del lado de WOMG? ¿Flujo de aprobación con varios pasos?</div></div>
+        <div class="faq-item"><div class="faq-num">P15</div><div class="faq-text"><strong>Pesaje a la salida:</strong> ¿Se vuelve a pesar el camión al salir, o se confía en el peso teórico del producto terminado?</div></div>
+        <div class="faq-item"><div class="faq-num">P16</div><div class="faq-text"><strong>Despachos parciales:</strong> ¿Un mismo Lote Hijo puede despacharse en varios viajes o siempre se entrega completo?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.7</span> Portal del cliente y notificaciones</div>
+      <div class="faq-head"><span class="faq-head-num">12.6</span> Integración API</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">30</div><div class="faq-text"><strong>Canales de notificación:</strong> Correo + WhatsApp. ¿Algo más (SMS, push)? ¿Qué eventos disparan notificación obligatoria?</div></div>
-        <div class="faq-item"><div class="faq-num">31</div><div class="faq-text"><strong>Idioma:</strong> ¿Solo español o también inglés (clientes exportadores)?</div></div>
-        <div class="faq-item"><div class="faq-num">32</div><div class="faq-text"><strong>Móvil:</strong> ¿Portal responsivo o app dedicada?</div></div>
-        <div class="faq-item"><div class="faq-num">33</div><div class="faq-text"><strong>Firma digital:</strong> ¿Firma simple, electrónica con certificado, o física?</div></div>
+        <div class="faq-item"><div class="faq-num">P17</div><div class="faq-text"><strong>Profundidad de integración:</strong> ¿La API debe permitir <em>escribir</em> (crear envíos, OPs desde ERP del cliente) o solo <em>leer</em>?</div></div>
+        <div class="faq-item"><div class="faq-num">P18</div><div class="faq-text"><strong>Cliente piloto:</strong> ¿Hay algún cliente concreto con ERP listo para integrar en la v1, o se construye la API a futuro?</div></div>
       </div>
     </div>
 
     <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.8</span> Despacho</div>
+      <div class="faq-head"><span class="faq-head-num">12.7</span> Operación y migración</div>
       <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">34</div><div class="faq-text"><strong>Pesaje de salida:</strong> ¿Se vuelve a pesar el camión a la salida?</div></div>
-        <div class="faq-item"><div class="faq-num">35</div><div class="faq-text"><strong>Documento de salida:</strong> ¿WOMG emite guía propia o entrega contra la guía del cliente?</div></div>
-        <div class="faq-item"><div class="faq-num">36</div><div class="faq-text"><strong>Despachos parciales:</strong> ¿Un lote hijo puede despacharse en varios viajes o siempre completo?</div></div>
+        <div class="faq-item"><div class="faq-num">P19</div><div class="faq-text"><strong>Sistema actual:</strong> ¿WOMG opera hoy con Excel u otro sistema? ¿Hay data histórica a migrar (clientes, contratos, stock vigente)?</div></div>
+        <div class="faq-item"><div class="faq-num">P20</div><div class="faq-text"><strong>Volumen actual:</strong> ¿Cuántas recepciones por día/semana? ¿Cuántos clientes activos? ¿Stock típico en bodega? Define performance esperada.</div></div>
+        <div class="faq-item"><div class="faq-num">P21</div><div class="faq-text"><strong>Plazo de v1:</strong> ¿Hay fecha tope para tener la v1 productiva?</div></div>
+        <div class="faq-item"><div class="faq-num">P22</div><div class="faq-text"><strong>Contraparte:</strong> ¿Quién será la contraparte funcional, técnica y de QA durante el proyecto?</div></div>
       </div>
     </div>
 
-    <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.9</span> Integración API</div>
-      <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">37</div><div class="faq-text"><strong>Prioridad de integración:</strong> ¿Hay cliente concreto con ERP listo para v1, o se construye "a futuro"?</div></div>
-        <div class="faq-item"><div class="faq-num">38</div><div class="faq-text"><strong>Profundidad:</strong> ¿La API debe permitir escribir (crear envíos, OPs) o solo leer?</div></div>
-        <div class="faq-item"><div class="faq-num">39</div><div class="faq-text"><strong>Webhooks vs. polling:</strong> ¿Los clientes integradores preferirían eventos o consultar bajo demanda?</div></div>
-      </div>
-    </div>
-
-    <div class="faq-section">
-      <div class="faq-head"><span class="faq-head-num">10.10</span> Temas operativos y de cierre</div>
-      <div class="faq-list">
-        <div class="faq-item"><div class="faq-num">40</div><div class="faq-text"><strong>Inicio de operaciones:</strong> ¿WOMG ya opera con otro sistema/Excel? ¿Hay data histórica a migrar?</div></div>
-        <div class="faq-item"><div class="faq-num">41</div><div class="faq-text"><strong>Volumen actual:</strong> ¿Cuántas recepciones por día/semana? ¿Cuántos clientes activos? ¿Cuántos lotes en stock típicamente?</div></div>
-        <div class="faq-item"><div class="faq-num">42</div><div class="faq-text"><strong>Plazo objetivo de v1:</strong> ¿Hay fecha tope para tener la v1 productiva?</div></div>
-        <div class="faq-item"><div class="faq-num">43</div><div class="faq-text"><strong>Equipo de implementación:</strong> ¿Quién será la contraparte funcional, técnica y de QA?</div></div>
-      </div>
-    </div>
   </section>
 
   <section class="chapter" id="glosario">
@@ -3014,7 +3307,17 @@ Taza certificada por WOMG: 84.5 pts SCA.</div>
         <tr><td><strong>AFP</strong></td><td>Análisis Físico Post-Proceso. Al exportable resultante.</td></tr>
         <tr><td><strong>ASE</strong></td><td>Análisis Sensorial / Catación. Al exportable tostado.</td></tr>
         <tr><td><strong>Liquidación</strong></td><td>Documento de cierre que consolida AFE + Proceso + AFP + ASE + composición.</td></tr>
-        <tr><td><strong>Almacén virtual</strong></td><td>Vista lógica del stock de cada cliente.</td></tr>
+        <tr><td><strong>Vista del kardex por cliente</strong></td><td>Resultado de filtrar el kardex maestro por <code>cliente=X</code>. Lo que un cliente ve cuando entra al portal a consultar "su stock".</td></tr>
+        <tr><td><strong>Merma de almacén</strong></td><td>Diferencia de peso entre el ingreso a planta y el momento de pasar a línea, originada por pérdida de humedad en custodia. Se documenta con Informe de Merma.</td></tr>
+        <tr><td><strong>Informe de Merma</strong></td><td>Documento que entrega WOMG al cliente para justificar tributariamente la diferencia de peso entre lo entregado y lo procesado.</td></tr>
+        <tr><td><strong>MC</strong></td><td>Identificación que recibe el café Malla 13 cuando sale separado del exportable. Es uno de los Lotes Hijos típicos.</td></tr>
+        <tr><td><strong>Exportable</strong></td><td>Lote Hijo principal del proceso. Una sola familia que incluye M14, M15, M16, M17+. Se puede separar en sub-lotes finos solo si la OP lo solicita.</td></tr>
+        <tr><td><strong>Reproceso</strong></td><td>Tipo de proceso aplicable a café verde o segundas. No pasa por pilonera, solo por zaranda y selección.</td></tr>
+        <tr><td><strong>Procesado en custodia</strong></td><td>Estado del Lote Hijo cuando la liquidación está cerrada pero el cliente aún no ha despachado.</td></tr>
+        <tr><td><strong>Inventario de Masas</strong></td><td>Reporte que la certificadora ORG/RA pide en auditorías anuales para verificar el cuadre entre lo ingresado, procesado y entregado por organización.</td></tr>
+        <tr><td><strong>Norma SCAP</strong></td><td>Clasificación de grados de café por defectos. Grado 1: 8-15 defectos en 300g. Grado 2: 16-25. Lo aplica el AFP.</td></tr>
+        <tr><td><strong>Sello</strong></td><td>Condición/certificación del café declarada por el cliente. Valores: ECB (convencional), ORG (orgánico), RA (Rainforest).</td></tr>
+        <tr><td><strong>Orden de Producto Terminado</strong></td><td>Agrupamiento de lotes hijos resultantes de varias OPs (típicamente pergamino + verde) para un mismo despacho consolidado.</td></tr>
       </tbody>
     </table>
     </div>
